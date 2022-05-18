@@ -1,0 +1,16 @@
+.checkButton{
+    align-self: center;
+    margin-left: 30px;
+    width: 120px;
+    height: 40px;
+    background-color: #4D5B9E;
+    color: white;
+    border-radius: 15px;
+    font-size: 20px;
+    margin-right: auto;
+    float: right;
+    cursor: pointer;
+}
+.resultInform{
+    float: left;
+}

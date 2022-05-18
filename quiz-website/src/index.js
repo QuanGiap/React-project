@@ -7,6 +7,8 @@ import reportWebVitals from './reportWebVitals';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <img src="./images/blobs.svg" className="blobs"/>
+    <img src="./images/blobs2.svg"className="blobs2"/>
     <App />
   </React.StrictMode>
 );
