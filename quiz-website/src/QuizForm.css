@@ -14,3 +14,11 @@
 .resultInform{
     float: left;
 }
+.quizBox{
+    position: relative;
+}
+.LoadingScreen{
+    margin-top: 50%;
+    position: center;
+    font-size: 90px;
+}
