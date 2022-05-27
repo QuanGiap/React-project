@@ -1,0 +1,20 @@
+.form_input{
+    margin: auto;
+    padding: 25px;
+    width: 1000px;
+    background-color: aqua;
+}
+.description_box{
+    display: flex;
+}
+#description{
+    resize: none;
+    max-height: 50px;
+}
+.prev_pro{
+    /* background-color: aqua; */
+    position: absolute;
+    width: 100%;
+    left: 50%;
+    transform: translateX(-15%);
+}

@@ -11,7 +11,7 @@ export default function(){
     return(
       <div>
         <div className="boxApp">
-          {!isStarted && <Introduction StartGame={StartGame}/>}\
+          {!isStarted && <Introduction StartGame={StartGame}/>}
         </div>
         <div className='QuizForm'>
           {isStarted && <QuizForm/>}

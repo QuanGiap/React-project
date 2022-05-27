@@ -1,0 +1,38 @@
+.box_product{
+    padding: 10px;
+    max-width: 25%;
+    min-width: 25%;
+    flex: none;
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
+    margin: 10px;
+}
+.star_pic{
+    width: 15px;
+    margin-right: 3px;
+}
+.pic_product{
+    max-width: 50%;
+}
+.description_product{
+    white-space:pre-wrap;
+}
+.add_button{
+    margin: 10px;
+    min-height: 30px;
+    min-width: 150px;
+    background-color: orange;
+    color: black;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space:nowrap;
+}
+.price_product{
+    align-self: flex-start;
+    font-weight: bold;
+    margin-top: 10px;
+}

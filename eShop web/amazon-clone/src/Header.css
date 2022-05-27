@@ -1,0 +1,67 @@
+.header_box{
+    background-color: black;
+    color: white;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    position:sticky;
+    top: 0;
+    padding: 0 2%;
+}
+.name_box{
+    display: flex;
+    align-items: center;
+}
+.logo{
+    margin: 10px 20px;
+    color: orange;
+    cursor: pointer;
+}
+.name_logo{
+    margin-right: 20px;
+    font-size: 30px;
+    font-weight: 600;
+    cursor:default;
+}
+.search_bar{
+    width:70%;
+    display: flex;
+    align-items: center;
+}
+textarea:focus, input:focus{
+    outline: none;
+}
+.search_input{
+    width:98%;
+    height: 20px;
+    font-size: 15px;
+}
+.sign_in, .basket, .your_shop{
+    cursor: pointer;
+    background-color: black;
+    color: white;
+    height: 100%;
+    margin-right: 15px;
+    width: 100px;
+}
+.sign_in:hover, .basket:hover, .your_shop:hover{
+    opacity: 0.5;
+}
+button>div{
+    font-size: 11px;
+}
+.search_icon{
+    background-color: orange;
+    color: black;
+    cursor: pointer;
+}
+.basket{
+    display: flex;
+    align-items: center;
+}
+.basket_icon{
+    margin-right: 10px;
+}
+.number{
+    font-size: 15px;
+}

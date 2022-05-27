@@ -1,9 +1,9 @@
-import React, { useState } from "react"
+import React from "react"
 import Question from "./Question";
 import "./QuizForm.css"
 import { nanoid } from 'nanoid'
-import { act } from "react-dom/test-utils";
-export default function(){
+// import { act } from "react-dom/test-utils";
+export default function (){
     const [hasData,setData] = React.useState(false);
     const [quizInform,setQuiz] = React.useState([]);
     const [answear,setAnswear] = React.useState([]);
@@ -67,7 +67,7 @@ export default function(){
         answears={answearChoice[index]} 
         choose={answear[index]} 
         funct={changeAnswear} 
-        rightAnswer={(isChecked)? quizInform[index].correct_answer:""}/>
+        rightAnswer={(isChecked)? quizInform[index].correct_answer : ""}/>
     })
     return(
         <div className="quizBox">
