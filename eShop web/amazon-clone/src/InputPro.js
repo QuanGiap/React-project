@@ -21,10 +21,25 @@ class InputPro extends React.Component{
     submitForm(event){
         event.preventDefault();
         var regex  = /^\d+(?:\.\d{0,2})$/;
-        // if(this.state.price.includes('-')) alert("price can't contain negative");
-        if(!regex.test(this.state.price)) alert("price need to be correct form 0.00");
-        else if (!isNaN(this.state.stars) || this.state.stars<0)  alert("Please input valid stars");
-        else console.log('Form submit')
+        if(!regex.test(this.state.price)) alert("price need to be correct form 0.00 including cent");
+        else if (isNaN(this.state.stars) || this.state.stars<0 || this.state.stars==='')  alert("Please input valid stars");
+        else {
+            let inform={
+                description:this.state.description,
+                price:this.state.price,
+                stars:this.state.stars,
+                imgURL:this.state.imgURL
+            }
+            fetch("http://localhost:5000/api/",{
+                method:'POST',
+                headers:{
+                    'Content-type':'application/json'
+                },
+                body:JSON.stringify(inform)
+            }).then(res=>{
+                alert("Submit success");
+            }).catch(err=>console.log(err))
+        }
     }
     setPrev(event){
         event.preventDefault();
@@ -35,7 +50,6 @@ class InputPro extends React.Component{
         let other;
         if(name==="stars"&&(value<0||value>5)) other = (value<0)? 0:5;
         this.setState({[name]:(other)? other:value})
-        console.log(this.state)
     }
     render(){
         return(

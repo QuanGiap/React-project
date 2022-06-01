@@ -1,0 +1,25 @@
+.login_box{
+    margin: 50px auto;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: wheat;
+    width: 400px;
+    padding: 20px;
+}
+.welcome_name{
+    margin: 20px;
+}
+.account_box{
+    margin: 10px;
+}
+.pass_box{
+    margin: 10px;
+}
+.welcome_name{
+    color: cadetblue;
+}
+.loading_account{
+    text-align: center;
+    font-size: 50px;
+}

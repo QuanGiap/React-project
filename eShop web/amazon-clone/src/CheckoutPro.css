@@ -1,0 +1,29 @@
+.box_check_product{
+    background-color: white;
+    display: flex;
+    width: 75%;
+    margin-bottom: 10px;
+}
+.check_star_pic{
+    width: 25px;
+    margin-right: 10px;
+    align-self: center;
+}
+.check_pic_product{
+    width: 200px;
+}
+.check_info{
+    align-self: center;
+    margin-left: 25px;
+}
+.check_add_button{
+    margin: 10px;
+    min-height: 30px;
+    min-width: 150px;
+    background-color: orange;
+    color: black;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space:nowrap;
+}
