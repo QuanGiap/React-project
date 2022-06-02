@@ -18,4 +18,4 @@ function CheckoutPro(props){
         </div>
     )
 }
-export default CheckoutPro;
+export default React.memo(CheckoutPro);

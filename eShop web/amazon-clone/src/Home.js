@@ -10,13 +10,15 @@ class Home extends React.Component{
         this.generateProduct = this.generateProduct.bind(this);
     }
     componentDidMount(){
-            fetch("http://localhost:5000/api/")
-            .then(data=>data.json())
-            .then(info=>{
-                if(info.status===200)
-                    this.props.changeProData(info.data);
-                else console.error('fetch error');
-            }).catch((err)=>{console.log(err)});
+        if(!this.props.proData){
+        fetch("http://localhost:5000/api/")
+        .then(data=>data.json())
+        .then(info=>{
+            if(info.status===200)
+                this.props.changeProData(info.data);
+            else console.error('fetch error');
+        }).catch((err)=>{console.log(err)});
+        }
     }
     generateProduct() {
         if(this.props.proData){
@@ -53,4 +55,4 @@ class Home extends React.Component{
         )
     }
 }
-export default Home;
+export default React.memo(Home);

@@ -1,6 +1,13 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import Button from "@mui/material/Button";
+export default function RootFunction(props){
+  const navigation = useNavigate() // extract navigation prop here 
+  
+   return <Login {...props} navigation={navigation} /> //pass to your component.
+  
+}
 class Login extends React.Component {
   constructor(props) {
     super(props);
@@ -8,7 +15,8 @@ class Login extends React.Component {
       account: "",
       pass: "",
       repass: "",
-      isSignUp: false
+      isSignUp: false,
+      success:false
     };
     this.handleChange = this.handleChange.bind(this);
     this.onEnter = this.onEnter.bind(this);
@@ -47,15 +55,17 @@ class Login extends React.Component {
               }).then(res=>{
                   alert("Create success");
                   this.props.changeName(this.state.account);
-                  this.props.funct();
+                  this.props.navigation('/');
               }).catch(err=>console.log(err))
         }
       }
       else{  
         let get = await fetch('http://localhost:5000/api/accounts/check?name='+this.state.account+'&pass='+this.state.pass)
         get = await get.json();
-        if(get.result) {this.props.changeName(this.state.account);
-          this.props.funct();}
+        if(get.result) {
+          this.props.changeName(this.state.account);
+          this.props.navigation('/')
+        }
         else alert('Wrong account or password')
       }
     }
@@ -74,11 +84,10 @@ class Login extends React.Component {
   }
   render() {
     return (
-      <div>--
+      <div>
          <div className="login_box">
           <h1 className="welcome_name">Welcome to eShop</h1>
           <h1 className="login_name">
-            {" "}
             {this.state.isSignUp ? "Sign up" : "Sign in"}
           </h1>
           <div className="account_box">
@@ -119,8 +128,7 @@ class Login extends React.Component {
               sx={{
                 marginRight: "10px",
                 marginTop: "10px",
-              }}
-            >
+              }}>
               Enter
             </Button>
             <Button
@@ -139,4 +147,3 @@ class Login extends React.Component {
     );
   }
 }
-export default Login;

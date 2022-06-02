@@ -5,6 +5,7 @@ import Home from './Home';
 import InputPro from './InputPro';
 import Login from './Login';
 import Checkout from './Checkout';
+import {BrowserRouter as Router,Routes,Route,Outlet,Navigate} from'react-router-dom';
 class App extends React.Component {
   constructor(props){
     super(props);
@@ -14,7 +15,6 @@ class App extends React.Component {
       basket:[],
       proData:null
     })
-    this.turnPage = this.turnPage.bind(this);
     this.changeAccount = this.changeAccount.bind(this);
     this.removeFromBasket = this.removeFromBasket.bind(this);
     this.addToBasket = this.addToBasket.bind(this);
@@ -45,19 +45,22 @@ class App extends React.Component {
     arr.push(item);
     this.setState({basket:arr})
   }
-  turnPage(num){
-    this.setState({pageNum:num});
-  }
   render(){
   return (
     <div>
-      <Header funct={this.turnPage} name={this.state.account} basketLength={this.state.basket.length} 
+      <Router>
+      <Header name={this.state.account} basketLength={this.state.basket.length} 
       clearAccount={()=>this.changeAccount(null)}
       changeProData={this.changeProdata}/>
-      {this.state.pageNum === 0 && <Home addBasket={this.addToBasket} proData={this.state.proData} changeProData={this.changeProdata}/>}
-      {this.state.pageNum === 1 && <InputPro/>}
-      {this.state.pageNum === 2 && <Login funct={()=>this.turnPage(0)} changeName={this.changeAccount}/>}
-      {this.state.pageNum === 3 && <Checkout removeBasket={this.removeFromBasket} basket={this.state.basket}/>}
+      <Routes>
+        <Route exact path='/' element={<Home addBasket={this.addToBasket} proData={this.state.proData} changeProData={this.changeProdata}/>}/>
+        <Route path='/input-product' element={(this.state.account) ? <InputPro/> : <Navigate to="/login"/>}/>
+        <Route exact path='/login' element={<Login changeName={this.changeAccount}/>}/>
+        <Route exact path='/check-out' element={(this.state.account) ?<Checkout removeBasket={this.removeFromBasket} basket={this.state.basket}/>:<Navigate to="/login"/>}/>
+        <Route path="*" element={<h1>No pages 404</h1>} />
+      </Routes>
+        <Outlet/>
+      </Router>
     </div>
   );
   }
