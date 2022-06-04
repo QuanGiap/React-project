@@ -1,0 +1,12 @@
+.boxSmallDesc{
+    background-color: white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    opacity: 0.8;
+}
+.smallDescription{
+    font-size: 20px;
+    text-align: center;
+}

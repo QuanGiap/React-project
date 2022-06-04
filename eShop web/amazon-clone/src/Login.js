@@ -33,8 +33,9 @@ class Login extends React.Component {
         console.log(err);
       };
   }
-  async onEnter(event) {
-    event.preventDefault();
+  async onEnter(event,button) {
+    if(button)event.preventDefault();
+    if(event.key !== 'Enter'&&!button) return;
     if(this.state.account.length<5||this.state.pass.length<5) alert('Your account or password need to be longer the 5 letter');
     else{
       if(this.state.isSignUp){
@@ -98,6 +99,7 @@ class Login extends React.Component {
               id="account"
               onChange={this.handleChange}
               value={this.state.account}
+              onKeyDown={(event)=>this.onEnter(event,false)}
             />
           </div>
           <div className="pass_box">
@@ -107,6 +109,7 @@ class Login extends React.Component {
               name="pass"
               id="pass"
               onChange={this.handleChange}
+              onKeyDown={(event)=>this.onEnter(event,false)}
               value={this.state.pass}
             />
           </div>
@@ -114,6 +117,7 @@ class Login extends React.Component {
             <div className="pass_box">
               <label htmlFor="repass">Type password again: </label>
               <input
+                onKeyDown={(event)=>this.onEnter(event,false)}
                 type="password"
                 name="repass"
                 id="repass"
@@ -124,7 +128,7 @@ class Login extends React.Component {
           )}
           <div>
             <Button
-              variant="contained" onClick={this.onEnter}
+              variant="contained" onClick={(event)=>this.onEnter(event,true)}
               sx={{
                 marginRight: "10px",
                 marginTop: "10px",

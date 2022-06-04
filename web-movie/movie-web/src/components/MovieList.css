@@ -1,0 +1,12 @@
+.image-container{
+    margin-right: 10px;
+    cursor: pointer;
+    position: relative;
+}
+.description{
+    /* display: hidden; */
+    position: relative;
+    left: 50%;
+    font-size: 20px;
+    color: brown;
+}
