@@ -1,0 +1,24 @@
+.nav-bar{
+    background-color: rgb(19, 19, 182);
+    padding: 10px 30px;
+    display: flex;
+    flex-direction: row;
+}
+.Title{
+    font-size: 30px;
+    font-weight: bold;
+    color: white;
+}
+.icon_box{
+    margin-left: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.icon_box>*{
+    color: white;
+    margin-left: 20px;
+}
+.icon_box>*:hover{
+    opacity: 0.5;
+}
