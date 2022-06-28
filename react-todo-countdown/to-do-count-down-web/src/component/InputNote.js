@@ -1,12 +1,20 @@
 import React from "react";
-import { Paper, Typography, Grid, TextField, Box, Button } from "@mui/material";
-import useStyle from "./style";
+import {
+  Paper,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  Switch,
+  FormControlLabel,
+} from "@mui/material";
 
 class InputNote extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       desciption: "",
+      isTimer: false,
       hours: 0,
       minutes: 0,
       seconds: 0,
@@ -15,22 +23,32 @@ class InputNote extends React.Component {
     this.onSubmit = this.onSubmit.bind(this);
   }
   handleChange(event) {
-    const {value, name} = event.target;
+    const { value, name } = event.target;
     let time = null;
-    if(name!=='desciption'){
-        time = value;
-        if(time>60) time = 60;
-        else if(time<0||time==='') time = 0;
+    if (name !== "desciption") {
+      time = value;
+      if (time > 60) time = 60;
+      else if (time < 0 || time === "") time = 0;
     }
-    this.setState({ [name]: (time==null)? value:time });
+    this.setState({ [name]: time == null ? value : time });
   }
-  onSubmit(event){
-    console.log(this.state)
+  onSubmit(event) {
+    if (this.state.hours > 24||this.state.desciption==="") this.props.error();
+    else{
+      const note = {
+      ...this.state,
+      hoursRemain: this.state.hours,
+      minutesRemain: this.state.minutes,
+      secondsRemain: this.state.seconds,
+    }
+      this.props.announce();
+      this.props.AddNote(note);
+    }
   }
   render() {
     return (
       <div>
-        <Grid container>
+        <Grid container style={{marginBottom:"15px"}}>
           <Paper
             elevation={8}
             className={this.props.classes.inputNoteContainer}
@@ -43,6 +61,7 @@ class InputNote extends React.Component {
               </Grid>
               <Grid item>
                 <TextField
+                  autoFocus
                   name="desciption"
                   id="desciption"
                   fullWidth
@@ -53,10 +72,24 @@ class InputNote extends React.Component {
                   onChange={this.handleChange}
                 />
               </Grid>
-              <Grid item alignSelf="flex-end">
+              <Grid item>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={this.state.isTimer}
+                      onChange={() =>
+                        this.setState((prev) => ({ isTimer: !prev.isTimer }))
+                      }
+                    />
+                  }
+                  label="Set timer"
+                />
+              </Grid>
+              <Grid item>
                 <Grid container spacing={1}>
                   <Grid item>
                     <TextField
+                      disabled={!this.state.isTimer}
                       className={this.props.classes.timerInput}
                       id="hours"
                       name="hours"
@@ -68,6 +101,7 @@ class InputNote extends React.Component {
                   </Grid>
                   <Grid item>
                     <TextField
+                      disabled={!this.state.isTimer}
                       className={this.props.classes.timerInput}
                       id="minutes"
                       name="minutes"
@@ -79,6 +113,7 @@ class InputNote extends React.Component {
                   </Grid>
                   <Grid item>
                     <TextField
+                      disabled={!this.state.isTimer}
                       className={this.props.classes.timerInput}
                       id="seconds"
                       name="seconds"
@@ -91,7 +126,9 @@ class InputNote extends React.Component {
                 </Grid>
               </Grid>
               <Grid item alignSelf="flex-end">
-                <Button variant="contained" onClick={this.onSubmit}>Add</Button>
+                <Button variant="contained" onClick={this.onSubmit}>
+                  Add
+                </Button>
               </Grid>
             </Grid>
           </Paper>
