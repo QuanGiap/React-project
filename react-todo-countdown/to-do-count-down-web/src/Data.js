@@ -66,13 +66,13 @@ const data = {
     store: { tasksToDo: [] },
   },
   columnsId: [
+    "sunday",
     "monday",
     "tuesday",
     "wednesday",
     "thursday",
     "friday",
     "satuday",
-    "sunday",
     "store",
   ],
 };

@@ -1,152 +1,151 @@
-import React, { Component } from "react";
-import InputNote from "./InputNote";
-import { DragDropContext } from "react-beautiful-dnd";
-import TaskColumns from "./TaskColumns";
-import { nanoid } from "nanoid";
-import { Button, Grid } from "@mui/material";
-export default class EditNote extends Component {
+import React from "react";
+import {
+  Paper,
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  Switch,
+  FormControlLabel,
+} from "@mui/material";
+import useStyle from "./style";
+
+function SubClass(props){
+    const classes = useStyle();
+    return <EditNote {...props} classes={classes}/>
+}
+class EditNote extends React.Component {
   constructor(props) {
     super(props);
-    //deep copy
-    let copy = JSON.parse(JSON.stringify(this.props.data));
     this.state = {
-      cloneData: {
-        ...copy,
-      },
-      IsChanged: false,
+      desciption: props.desciption,
+      isTimer: props.isTimer,
+      hours: props.hours,
+      minutes: props.minutes,
+      seconds: props.seconds,
     };
-    this.onDragEnd = this.onDragEnd.bind(this);
-    this.confirmChanged = this.confirmChanged.bind(this);
-    this.AddNote = this.AddNote.bind(this);
-    this.deleteNote = this.deleteNote.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
-  componentWillUnmount() {
-    if (this.state.IsChanged) {
-      console.log(this.state.cloneData);
-      if (window.confirm("Do you want to save ?")) {
-        this.props.setOrigin(this.state.cloneData);
-      }
+  handleChange(event) {
+    const { value, name } = event.target;
+    let time = null;
+    if (name !== "desciption") {
+      time = value;
+      if (time > 60) time = 60;
+      else if (time < 0 || time === "") time = 0;
     }
+    this.setState({ [name]: time == null ? value : time });
   }
-  confirmChanged() {
-    if (!this.state.IsChanged) this.setState({ IsChanged: true });
-  }
-  onDragEnd(result) {
-    //reorder of item after drag complete
-    // console.log(result);
-    const { destination, source, draggableId } = result;
-    //if there is no destination
-    if (!destination) {
-      console.log("destination note found");
-      return;
+  onSubmit(event) {
+    if (this.state.hours > 24 || this.state.desciption === "") this.props.error();
+    else {
+      const note = {
+        ...this.state,
+        hoursRemain: this.state.hours,
+        minutesRemain: this.state.minutes,
+        secondsRemain: this.state.seconds,
+        };
+        this.props.editAnnounce();
+        this.props.updateNote(this.props.taskId,note);
     }
-    //if placement doesn't change
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
-      return;
-    }
-    this.confirmChanged();
-    const removedTaskId =
-      this.state.cloneData.columns[source.droppableId].tasksToDo;
-    const addedTaskIds =
-      this.state.cloneData.columns[destination.droppableId].tasksToDo;
-    removedTaskId.splice(source.index, 1);
-    addedTaskIds.splice(destination.index, 0, draggableId);
-    // console.log(removedTaskId);
-    // console.log(addedTaskIds);
-    this.setState((prev) => ({
-      cloneData: {
-        ...prev.cloneData,
-        columns: {
-          ...prev.cloneData.columns,
-          [destination.droppableId]: {
-            tasksToDo: [...addedTaskIds],
-          },
-          [source.droppableId]: {
-            tasksToDo: [...removedTaskId],
-          },
-        },
-      },
-    }));
-  }
-  AddNote(note) {
-    const id = nanoid();
-    console.log(note);
-    this.setState((prev) => ({
-      cloneData: {
-        ...prev.cloneData,
-        tasks: {
-          ...prev.cloneData.tasks,
-          [id]: note,
-        },
-        columns: {
-          ...prev.cloneData.columns,
-          store: {
-            tasksToDo: [...prev.cloneData.columns.store.tasksToDo, `${id}`],
-          },
-        },
-        tasksId: [...prev.cloneData.tasksId, `${id}`],
-      },
-    }));
-  }
-  deleteNote(columnId, taskId, posInColumn) {
-    this.confirmChanged();
-    let newData = JSON.parse(JSON.stringify(this.state.cloneData));;
-    delete newData.tasks[taskId];
-    let newColumn = this.state.cloneData.columns[columnId].tasksToDo;
-    newColumn.splice(posInColumn,1);
-    this.setState({cloneData:{
-      ...newData,
-      columns:{
-        ...newData.columns,
-        [columnId]:{
-          tasksToDo:[...newColumn],
-        },
-      }
-    }})
   }
   render() {
     return (
       <div>
-        <InputNote
-          classes={this.props.classes}
-          announce={this.props.announce}
-          error={this.props.error}
-          AddNote={(note) => {
-            this.AddNote(note);
-            this.confirmChanged();
-          }}
-        />
-        <Grid container justifyContent="center">
-          <Grid item>
-            <Button
-              variant="contained"
-              style={{
-                fontSize: "45px",
-                position: "fixed",
-                top: "50%",
-                right: "0%",
-                zIndex: "3",
-              }}
-              onClick={() => {
-                this.props.setOrigin(this.state.cloneData);
-                this.setState({ IsChanged: false });
-              }}
-            >
-              Save
-            </Button>
-          </Grid>
+        <Grid container style={{ marginBottom: "15px" }}>
+          <Paper
+            elevation={8}
+            className={this.props.classes.inputNoteContainer}
+          >
+            <Grid container direction="column" spacing={1}>
+              <Grid item>
+                <Typography gutterBottom variant="h6" textAlign="center">
+                  Edit note box
+                </Typography>
+              </Grid>
+              <Grid item>
+                <TextField
+                  autoFocus
+                  name="desciption"
+                  id="desciption"
+                  fullWidth
+                  label="Input you note here"
+                  rows={4}
+                  multiline
+                  value={this.state.desciption}
+                  onChange={this.handleChange}
+                />
+              </Grid>
+              <Grid item>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={this.state.isTimer}
+                      onChange={() =>
+                        this.setState((prev) => ({ isTimer: !prev.isTimer }))
+                      }
+                    />
+                  }
+                  label="Set timer"
+                />
+              </Grid>
+              <Grid item>
+                <Grid container spacing={1}>
+                  <Grid item>
+                    <TextField
+                      disabled={!this.state.isTimer}
+                      className={this.props.classes.timerInput}
+                      id="hours"
+                      name="hours"
+                      label="hour"
+                      type="number"
+                      value={this.state.hours}
+                      onChange={this.handleChange}
+                    />
+                  </Grid>
+                  <Grid item>
+                    <TextField
+                      disabled={!this.state.isTimer}
+                      className={this.props.classes.timerInput}
+                      id="minutes"
+                      name="minutes"
+                      label="minute"
+                      type="number"
+                      value={this.state.minutes}
+                      onChange={this.handleChange}
+                    />
+                  </Grid>
+                  <Grid item>
+                    <TextField
+                      disabled={!this.state.isTimer}
+                      className={this.props.classes.timerInput}
+                      id="seconds"
+                      name="seconds"
+                      label="second"
+                      type="number"
+                      value={this.state.seconds}
+                      onChange={this.handleChange}
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item alignSelf="flex-end">
+                <Grid container flexDirection="row" spacing={1}>
+                  <Grid item>
+                    <Button variant="contained" onClick={this.onSubmit}>Save</Button>
+                  </Grid>
+                  <Grid item>
+                    <Button variant="outlined" onClick={()=>this.props.updateNote(null,null)}>Cancel</Button>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Paper>
         </Grid>
-        <DragDropContext onDragEnd={this.onDragEnd}>
-          <TaskColumns
-            data={this.state.cloneData}
-            classes={this.props.classes}
-            deleteNote={this.deleteNote}
-          />
-        </DragDropContext>
       </div>
     );
   }
 }
+
+export default SubClass;

@@ -3,29 +3,108 @@ import "./App.css";
 import Body from "./component/Body";
 import Navbar from "./component/Navbar";
 import useStyle from "./component/style";
-import Data from "./Data";
 import { DragDropContext } from "react-beautiful-dnd";
-import EditNote from "./component/EditNote";
+import EditNoteList from "./component/EditNoteList";
+import DataTest from "./Data";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
+  useNavigate,
 } from "react-router-dom";
 import { toast } from "react-toastify";
 import SignIn from "./component/SignIn";
 import { Typography } from "@mui/material";
 function App() {
   const classes = useStyle();
-  const [data, setData] = React.useState(Data);
-  const [token, setToken] = React.useState("T");
+  const [data, setData] = React.useState(null);
+  const [token, setToken] = React.useState(localStorage.getItem("token")||"");
+  const [isTest, setTest] = React.useState(false);
+  //username
+  //select which data day to use;
   let day = new Date().getDay();
-  day = data.columnsId[day];
-  const taskIds = data.columns[day].tasksToDo;
+  let taskIds = null;
+  // console.log(day);
+  if (data) {
+    day = data.columnsId[day];
+    taskIds = data.columns[day].tasksToDo;
+  }
+  //getting new token from given refresh token and then run given function
+  function getNewToken(funct,newData){
+    fetch("http://localhost:7789/account/token", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({
+          token: localStorage.getItem("refreshToken")
+        }),
+      })
+        .then((res) => {
+          if (res.ok) return res.json();
+          else {
+            console.log("error");
+            ExpiredAnnounce();
+            setNewToken("");
+            throw new Error("Refresh token expired");
+          }
+        })
+        .then((data) => {
+          if (data.accessToken) {
+            setNewToken(data.accessToken);
+            funct(newData,data.accessToken);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+  }
+  function turnTest() {
+    setTest((prev) => !prev);
+    if (!isTest) {
+      setData(DataTest);
+      setToken("Test");
+    }
+    else{
+      setData(null);
+      setToken("");
+    }
+  }
   useEffect(() => {
-    // if(token!=="") fetch();
+    if (token !== "" && !isTest &&!data) {
+      fetch("http://localhost:5000/tasks/getTasks", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify({ test: "test" }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+           setData(data);
+        })
+        .catch((err) => {
+          setToken("");
+          localStorage.removeItem("token");
+        });
+    }
   }, [token]);
+  function setNewToken(newToken) {
+    setToken(newToken);
+    localStorage.setItem("token", newToken);
+    if (newToken === "") {
+      setData(null);
+      if(isTest) turnTest();
+      localStorage.clear();
+    }
+  }
 
+  // function setNewData(newData){
+  //   setData(newData);
+  // }
   //add toast
   const notify = () =>
     toast.info("You just finish the task!", {
@@ -47,8 +126,28 @@ function App() {
       draggable: false,
       progress: undefined,
     });
+  const EditAnnounce = () =>
+    toast.success("Save success!", {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: false,
+      progress: undefined,
+    });
   const error = () =>
     toast.error("The task is no longer 24 hours and context is not empty", {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: false,
+      progress: undefined,
+    });
+    const ExpiredAnnounce = () =>
+    toast.error("Token is expired please log in again", {
       position: "top-center",
       autoClose: 5000,
       hideProgressBar: false,
@@ -95,16 +194,43 @@ function App() {
       },
     }));
   }
-  function setOrigin(newData) {
+  function setOrigin(newData,newToken) {
     setData(newData);
+    let curToken = (newToken) ? newToken : token;
+    if (!isTest)
+      fetch("http://localhost:5000/tasks/updateAll", {
+        method: "PATCH",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: "Bearer " + curToken,
+        },
+        body: JSON.stringify({
+          tasks: newData.tasks,
+          columns: newData.columns,
+        }),
+      })
+        .then((res) => {
+          if (res.ok) return res.json();
+          else getNewToken(setOrigin,newData);
+        })
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
   }
-  function updateNote(taskId, newData) {
-    let oldData = data.tasks[taskId];
+  function updateNote(newData,newToken) {
+    // console.log(newData);
+    console.log("This is new one: "+newToken);
+    let curToken = (newToken) ? newToken : token;
+    console.log("This is current one: "+curToken);
+    let oldData = data.tasks[newData.taskId];
     setData((prev) => ({
       ...prev,
       tasks: {
         ...prev.tasks,
-        [taskId]: {
+        [newData.taskId]: {
           ...oldData,
           hoursRemain: newData.hoursRemain,
           minutesRemain: newData.minutesRemain,
@@ -112,11 +238,32 @@ function App() {
         },
       },
     }));
+    if (!isTest)
+      fetch("http://localhost:5000/tasks/update", {
+        method: "PATCH",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: "Bearer " + curToken,
+        },
+        body: JSON.stringify({
+          hoursRemain: newData.hoursRemain,
+          minutesRemain: newData.minutesRemain,
+          secondsRemain: newData.secondsRemain,
+          nameTask: newData.taskId,
+        }),
+      })
+        .then((res) => {
+          if (res.ok) return res.json();
+          else getNewToken(updateNote,newData);
+        })
+        .then((data) => {
+          console.log(data);
+        })
   }
   return (
     <div>
       <Router>
-        <Navbar classes={classes} />
+        <Navbar classes={classes} token={token} setNewToken={setNewToken} turnTest={turnTest} isTest={isTest}/>
         <Routes>
           <Route
             path="/"
@@ -125,7 +272,7 @@ function App() {
                 <Navigate to="/sign_in" />
               ) : (
                 <DragDropContext onDragEnd={onDragEnd}>
-                  {taskIds.length === 0 && (
+                  {taskIds && taskIds.length === 0 && (
                     <Typography
                       variant="h4"
                       style={{
@@ -135,10 +282,11 @@ function App() {
                         right: "50%",
                       }}
                     >
-                      Your tasks today is empty. Yay!!!
+                      Your tasks today is empty. Go to Edit page to create more
+                      !
                     </Typography>
                   )}
-                  {taskIds.length !== 0 && (
+                  {taskIds && taskIds.length !== 0 && (
                     <Body
                       classes={classes}
                       data={data.tasks}
@@ -160,7 +308,8 @@ function App() {
               token === "" ? (
                 <Navigate to="/sign_in" />
               ) : (
-                <EditNote
+                <EditNoteList
+                  editAnnounce={EditAnnounce}
                   onDragEnd={onDragEnd}
                   classes={classes}
                   announce={announce}
@@ -171,7 +320,10 @@ function App() {
               )
             }
           />
-          <Route path="/sign_in" element={<SignIn />} />
+          <Route
+            path="/sign_in"
+            element={<SignIn setNewToken={setNewToken} />}
+          />
           <Route path="*" element={<h1>No pages 404</h1>} />
         </Routes>
       </Router>

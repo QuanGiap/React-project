@@ -35,7 +35,7 @@ const useStyle = makeStyles((theme)=>({
     },
     noteContainer:{
         padding:'10px',
-        minWidth:'350px',
+        minWidth:'400px',
     },
     noteContext:{
         border:'1px solid black',
@@ -46,5 +46,8 @@ const useStyle = makeStyles((theme)=>({
     clock:{
         marginTop:"5px",
     },
+    editBackGround:{
+        
+    }
   }))
 export default useStyle;

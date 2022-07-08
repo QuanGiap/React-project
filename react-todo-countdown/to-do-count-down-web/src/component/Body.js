@@ -42,6 +42,7 @@ export default class Body extends React.Component {
         index //columnId, taskId, posInColumn
       ) => (
         <Note
+          setEdit={()=>this.props.setEdit(id)}
           data={data[id]}
           key={nanoid()}
           taskId={id}

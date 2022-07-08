@@ -24,6 +24,7 @@ function TaskColumns(props) {
         </Grid>
         <Grid item style={{width:"100%"}}>
           <Body
+            setEdit={props.setEdit}
             classes={classes}
             data={data.tasks}
             taskIds={taskIds}

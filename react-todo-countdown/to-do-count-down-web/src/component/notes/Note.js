@@ -3,23 +3,27 @@ import { Grid, Typography, Paper, Button, IconButton } from "@mui/material";
 import { Draggable } from "react-beautiful-dnd";
 import useStyle from "../style";
 import Countdown from "../CountdownTimer/Countdown";
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteIcon from "@mui/icons-material/Delete";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
 
 function Note(props) {
-  const isFinish = (props.data.hoursRemain===0&&props.data.secondsRemain===0&&props.data.minutesRemain===0);
+  const isFinish =
+    props.data.hoursRemain === 0 &&
+    props.data.secondsRemain === 0 &&
+    props.data.minutesRemain === 0;
   const [isReset, setReset] = React.useState(false);
   const classes = useStyle();
   const getItemStyle = (isDragging, draggableStyle) => ({
     // styles we need to apply on draggables
-        width:(props.isEdit) ? '350px':'80%',
-        ...draggableStyle,
-  
+    width: props.isEdit ? "400px" : "80%",
+    ...draggableStyle,
+
     ...(isDragging && {
-      opacity: "0.5"
-    })
+      opacity: "0.5",
+    }),
   });
-  const isEdit = (props.isEdit) ? true : false;
-  const isChosen = props.choose===props.index;
+  const isEdit = props.isEdit ? true : false;
+  const isChosen = props.choose === props.index;
   function ResetTimer() {
     // console.log("reseting");
     setDone();
@@ -28,19 +32,24 @@ function Note(props) {
       setReset(false);
     }, 200);
     const newData = {
-      hoursRemain:parseInt(props.data.hours),
-      minutesRemain:parseInt(props.data.minutes),
-      secondsRemain:parseInt(props.data.seconds),
-    }
-    if(props.updateNote) props.updateNote(props.taskId,newData);
+      taskId:props.taskId,
+      hoursRemain: parseInt(props.data.hours),
+      minutesRemain: parseInt(props.data.minutes),
+      secondsRemain: parseInt(props.data.seconds),
+    };
+    if (props.updateNote) props.updateNote(newData);
   }
   function setDone() {
     props.changeChoice(-1);
   }
 
   return (
-    <Draggable draggableId={props.taskId} index={props.index} isDragDisabled={props.choose!==-1}>
-      {(provided,snapshot) => ( 
+    <Draggable
+      draggableId={props.taskId}
+      index={props.index}
+      isDragDisabled={props.choose !== -1}
+    >
+      {(provided, snapshot) => (
         <Grid
           item
           className={classes.noteContainer}
@@ -53,27 +62,55 @@ function Note(props) {
           )}
         >
           <Paper style={{ padding: "10px" }}>
-            <Grid container spacing={1} flexDirection="column" style={{position:"relative"}}>
+            <Grid
+              container
+              spacing={1}
+              flexDirection="column"
+              style={{ position: "relative",minHeight:"100px" }}
+            >
               <Grid item style={{ width: "100%" }}>
                 <Typography className={classes.noteContext}>
                   {props.data.desciption}
                 </Typography>
               </Grid>
-              {isEdit && <IconButton style={{position:"absolute",bottom:"0",left:"0"}} onClick={props.deleteNote}><DeleteIcon/></IconButton>}
+              {isEdit && (
+                <span style={{ position: "absolute", bottom: "0", left: "0" }}>
+                  <IconButton onClick={props.deleteNote}>
+                    <DeleteIcon />
+                  </IconButton>
+                  <IconButton onClick={props.setEdit}>
+                    <ModeEditIcon />
+                  </IconButton>
+                </span>
+              )}
               {props.data.isTimer && (
                 <Grid item style={{ marginLeft: "auto" }}>
                   {!isFinish && (
-                    <Grid container direction="row" spacing={1}>
+                    <Grid
+                      container
+                      direction="row"
+                      alignContent="center"
+                      spacing={1}
+                    >
                       <Grid item>
-                        <Button disabled={!(!isEdit&&(isChosen||props.choose===-1))}
+                        <Button
+                          disabled={
+                            !(!isEdit && (isChosen || props.choose === -1))
+                          }
                           variant="contained"
-                          onClick={() => props.changeChoice(props.index,props.choose)}
+                          onClick={() =>
+                            props.changeChoice(props.index, props.choose)
+                          }
                         >
-                          {(props.choose===-1) ? "Start" : "Stop"}
+                          {props.choose === -1 ? "Start" : "Stop"}
                         </Button>
                       </Grid>
                       <Grid item>
-                        <Button disabled={!(!isEdit&&(isChosen||props.choose===-1)) || isChosen}
+                        <Button
+                          disabled={
+                            !(!isEdit && (isChosen || props.choose === -1)) ||
+                            isChosen
+                          }
                           variant="outlined"
                           onClick={() => {
                             ResetTimer();
@@ -88,9 +125,19 @@ function Note(props) {
                           isStart={isChosen}
                           isReset={isReset}
                           setDone={setDone}
-                          hoursRemain={(isEdit) ? props.data.hours : props.data.hoursRemain}
-                          minutesRemain={(isEdit) ? props.data.minutes :props.data.minutesRemain}
-                          secondsRemain={(isEdit) ? props.data.seconds :props.data.secondsRemain}
+                          hoursRemain={
+                            isEdit ? props.data.hours : props.data.hoursRemain
+                          }
+                          minutesRemain={
+                            isEdit
+                              ? props.data.minutes
+                              : props.data.minutesRemain
+                          }
+                          secondsRemain={
+                            isEdit
+                              ? props.data.seconds
+                              : props.data.secondsRemain
+                          }
                           updateNote={props.updateNote}
                           taskId={props.taskId}
                           isEdit={isEdit}
@@ -99,7 +146,9 @@ function Note(props) {
                     </Grid>
                   )}
                   {isFinish && !isReset && (
-                    <Button disabled={isEdit} onClick={ResetTimer}>Restart</Button>
+                    <Button disabled={isEdit} onClick={ResetTimer}>
+                      Restart
+                    </Button>
                   )}
                   {isReset && (
                     <Typography variant="body">Loading...</Typography>
@@ -113,4 +162,4 @@ function Note(props) {
     </Draggable>
   );
 }
-export default Note
+export default Note;

@@ -16,11 +16,12 @@ export default class Countdown extends Component {
   }
   saveData(){
     const newData = {
+      taskId:this.props.taskId,
       hoursRemain:parseInt(this.state.hours),
       minutesRemain:parseInt(this.state.minutes),
       secondsRemain:parseInt(this.state.seconds),
     }
-    if(this.props.updateNote) this.props.updateNote(this.props.taskId,newData)
+    if(this.props.updateNote) this.props.updateNote(newData)
   }
   //make the clock easier to look at begining
   componentDidMount(){
@@ -70,6 +71,6 @@ export default class Countdown extends Component {
     this.setState({ hours: hours, minutes: minutes, seconds: seconds });
   }
   render() {
-    return <Typography variant="body1">{this.state.hours}:{this.state.minutes}:{this.state.seconds}</Typography>;
+    return <Typography variant="body1" style={{fontSize:"25px"}}>{this.state.hours}:{this.state.minutes}:{this.state.seconds}</Typography>;
   }
 }
