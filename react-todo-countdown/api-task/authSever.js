@@ -19,6 +19,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 let refreshTokens = [];
+
 mongoose
   .connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then((result) =>
@@ -37,9 +38,11 @@ function createSignAccount(dataId){
     const accessToken = generateAccessToken(user);
     const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
     refreshTokens.push(refreshToken);
+    setTimeout(()=>{refreshTokens = refreshTokens.filter((token) => token !== req.body.token)},36000000);
     return{ accessToken: accessToken, refreshToken: refreshToken };
 }
 router.delete("/logout", async (req, res) => {
+  console.log(req.body.token);
   refreshTokens = refreshTokens.filter((token) => token !== req.body.token);
   res.sendStatus(204);
 });

@@ -18,7 +18,6 @@ export default class Body extends React.Component {
     else this.setState({ choose: index });
   }
   componentDidUpdate() {
-    // console.log(this.state.choose);
   }
   getListStyle = (isDraggingOver, dropableStyle) => ({
     // styles we need to apply on dropable

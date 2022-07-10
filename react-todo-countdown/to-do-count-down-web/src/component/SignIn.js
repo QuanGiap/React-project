@@ -76,7 +76,6 @@ function SignIn(props) {
           }
         })
         .then((data) => {
-          console.log(data.accessToken);
           if (data.accessToken) {
             props.setNewToken(data.accessToken);
             localStorage.setItem("refreshToken", data.refreshToken);

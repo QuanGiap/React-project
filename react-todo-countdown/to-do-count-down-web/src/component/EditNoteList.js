@@ -33,7 +33,6 @@ export default class EditNoteList extends Component {
   }
   componentWillUnmount() {
     if (this.state.IsChanged) {
-      console.log(this.state.cloneData);
       if (window.confirm("Do you want to save ?")) {
         this.props.setOrigin(this.state.cloneData);
       }
@@ -65,8 +64,6 @@ export default class EditNoteList extends Component {
       this.state.cloneData.columns[destination.droppableId].tasksToDo;
     removedTaskId.splice(source.index, 1);
     addedTaskIds.splice(destination.index, 0, draggableId);
-    // console.log(removedTaskId);
-    // console.log(addedTaskIds);
     this.setState((prev) => ({
       cloneData: {
         ...prev.cloneData,

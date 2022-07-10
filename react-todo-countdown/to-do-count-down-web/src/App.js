@@ -19,60 +19,71 @@ import { Typography } from "@mui/material";
 function App() {
   const classes = useStyle();
   const [data, setData] = React.useState(null);
-  const [token, setToken] = React.useState(localStorage.getItem("token")||"");
+  const [token, setToken] = React.useState(localStorage.getItem("token") || "");
   const [isTest, setTest] = React.useState(false);
   //username
   //select which data day to use;
   let day = new Date().getDay();
   let taskIds = null;
-  // console.log(day);
   if (data) {
     day = data.columnsId[day];
     taskIds = data.columns[day].tasksToDo;
   }
   //getting new token from given refresh token and then run given function
-  function getNewToken(funct,newData){
+  function getNewToken(funct, newData) {
     fetch("http://localhost:7789/account/token", {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({
-          token: localStorage.getItem("refreshToken")
-        }),
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify({
+        token: localStorage.getItem("refreshToken"),
+      }),
+    })
+      .then((res) => {
+        if (res.ok) return res.json();
+        else {
+          ExpiredAnnounce();
+          setNewToken("");
+          throw new Error("Refresh token expired");
+        }
       })
-        .then((res) => {
-          if (res.ok) return res.json();
-          else {
-            console.log("error");
-            ExpiredAnnounce();
-            setNewToken("");
-            throw new Error("Refresh token expired");
-          }
-        })
-        .then((data) => {
-          if (data.accessToken) {
-            setNewToken(data.accessToken);
-            funct(newData,data.accessToken);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      .then((data) => {
+        if (data.accessToken) {
+          setNewToken(data.accessToken);
+          funct(newData, data.accessToken);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
+  function logout() {
+    fetch("http://localhost:7789/account/logout", {
+      method: "DELETE",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify({
+        token: localStorage.getItem("refreshToken"),
+      }),
+    }).catch((err) => {
+      console.log(err);
+    });
+  }
+  //turn on or off of the test
   function turnTest() {
     setTest((prev) => !prev);
     if (!isTest) {
       setData(DataTest);
       setToken("Test");
-    }
-    else{
+    } else {
       setData(null);
       setToken("");
     }
   }
   useEffect(() => {
-    if (token !== "" && !isTest &&!data) {
+    if (token !== "" && !isTest && !data) {
       fetch("http://localhost:5000/tasks/getTasks", {
         method: "POST",
         headers: {
@@ -83,8 +94,7 @@ function App() {
       })
         .then((res) => res.json())
         .then((data) => {
-          console.log(data);
-           setData(data);
+          setData(data);
         })
         .catch((err) => {
           setToken("");
@@ -95,9 +105,11 @@ function App() {
   function setNewToken(newToken) {
     setToken(newToken);
     localStorage.setItem("token", newToken);
+    //token === "" mean log out
     if (newToken === "") {
       setData(null);
-      if(isTest) turnTest();
+      logout();
+      if (isTest) turnTest();
       localStorage.clear();
     }
   }
@@ -146,7 +158,7 @@ function App() {
       draggable: false,
       progress: undefined,
     });
-    const ExpiredAnnounce = () =>
+  const ExpiredAnnounce = () =>
     toast.error("Token is expired please log in again", {
       position: "top-center",
       autoClose: 5000,
@@ -161,7 +173,6 @@ function App() {
   //change the order of the index after done dragging
   function onDragEnd(result) {
     //reorder of item after drag complete
-    // console.log(result);
     const { destination, source, draggableId } = result;
     //if there is no destination
     if (!destination) {
@@ -179,8 +190,6 @@ function App() {
     const addedTaskIds = data.columns[destination.droppableId].tasksToDo;
     removedTaskId.splice(source.index, 1);
     addedTaskIds.splice(destination.index, 0, draggableId);
-    // console.log(removedTaskId);
-    // console.log(addedTaskIds);
     setData((prev) => ({
       ...prev,
       columns: {
@@ -194,9 +203,9 @@ function App() {
       },
     }));
   }
-  function setOrigin(newData,newToken) {
+  function setOrigin(newData, newToken) {
     setData(newData);
-    let curToken = (newToken) ? newToken : token;
+    let curToken = newToken ? newToken : token;
     if (!isTest)
       fetch("http://localhost:5000/tasks/updateAll", {
         method: "PATCH",
@@ -211,7 +220,7 @@ function App() {
       })
         .then((res) => {
           if (res.ok) return res.json();
-          else getNewToken(setOrigin,newData);
+          else getNewToken(setOrigin, newData);
         })
         .then((data) => {
           console.log(data);
@@ -220,11 +229,8 @@ function App() {
           console.log(err);
         });
   }
-  function updateNote(newData,newToken) {
-    // console.log(newData);
-    console.log("This is new one: "+newToken);
-    let curToken = (newToken) ? newToken : token;
-    console.log("This is current one: "+curToken);
+  function updateNote(newData, newToken) {
+    let curToken = newToken ? newToken : token;
     let oldData = data.tasks[newData.taskId];
     setData((prev) => ({
       ...prev,
@@ -254,16 +260,22 @@ function App() {
       })
         .then((res) => {
           if (res.ok) return res.json();
-          else getNewToken(updateNote,newData);
+          else getNewToken(updateNote, newData);
         })
         .then((data) => {
           console.log(data);
-        })
+        });
   }
   return (
     <div>
       <Router>
-        <Navbar classes={classes} token={token} setNewToken={setNewToken} turnTest={turnTest} isTest={isTest}/>
+        <Navbar
+          classes={classes}
+          token={token}
+          setNewToken={setNewToken}
+          turnTest={turnTest}
+          isTest={isTest}
+        />
         <Routes>
           <Route
             path="/"

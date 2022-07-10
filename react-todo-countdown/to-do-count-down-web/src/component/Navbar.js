@@ -18,7 +18,20 @@ function Navbar({ classes, token,setNewToken,turnTest,isTest }) {
             width: "45%",
             marginLeft: "auto",
           }}
-        >
+        ><Grid item>
+        <Link to={isTest ? "/sign_in" : "/"} onClick={turnTest}>
+          <Button
+            variant="outlined"
+            style={{
+              backgroundColor: "white",
+              fontSize: "18px",
+              border: "1px solid black",
+            }}
+          >
+            Turn {isTest ? "Off":"On"} test
+          </Button>
+        </Link>
+      </Grid>
           <Grid item>
             <Link to="/">
               <Button
@@ -30,20 +43,6 @@ function Navbar({ classes, token,setNewToken,turnTest,isTest }) {
                 }}
               >
                 Main page
-              </Button>
-            </Link>
-          </Grid>
-          <Grid item>
-            <Link to={isTest ? "/sign_in" : "/"} onClick={turnTest}>
-              <Button
-                variant="outlined"
-                style={{
-                  backgroundColor: "white",
-                  fontSize: "18px",
-                  border: "1px solid black",
-                }}
-              >
-                Turn {isTest ? "Off":"On"} test
               </Button>
             </Link>
           </Grid>

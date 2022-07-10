@@ -25,7 +25,6 @@ function Note(props) {
   const isEdit = props.isEdit ? true : false;
   const isChosen = props.choose === props.index;
   function ResetTimer() {
-    // console.log("reseting");
     setDone();
     setReset(true);
     setInterval(() => {

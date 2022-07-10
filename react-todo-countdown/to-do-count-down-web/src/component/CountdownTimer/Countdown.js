@@ -33,7 +33,6 @@ export default class Countdown extends Component {
   }
   componentWillUnmount() {
     if(this.props.isStart&&!this.props.isEdit){
-      // console.log('Unmounted save')
       this.saveData();
     }
     clearInterval(this.state.intervalID);
