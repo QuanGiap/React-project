@@ -8,8 +8,9 @@ const errorHelpers = require("./errorHelper/errorHelpers");
 const jwt = require("jsonwebtoken");
 let app = express();
 let router = express.Router();
+const PORT = process.env.PORT || 7789;
 
-const EXPIREDTIME="10s";
+const EXPIREDTIME="30m";
 
 require("dotenv").config();
 const dbURI = process.env.dbURL;
@@ -23,8 +24,8 @@ let refreshTokens = [];
 mongoose
   .connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then((result) =>
-    app.listen(7789, function () {
-      console.log("Node is running on local host:7789");
+    app.listen(PORT, function () {
+      console.log("Node is running on local host on "+PORT);
     })
   );
 //create new token

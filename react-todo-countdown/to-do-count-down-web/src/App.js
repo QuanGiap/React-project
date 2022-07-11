@@ -31,7 +31,7 @@ function App() {
   }
   //getting new token from given refresh token and then run given function
   function getNewToken(funct, newData) {
-    fetch("http://localhost:7789/account/token", {
+    fetch("https://infinite-tor-24931.herokuapp.com/account/token", {
       method: "POST",
       headers: {
         "Content-type": "application/json",
@@ -59,7 +59,7 @@ function App() {
       });
   }
   function logout() {
-    fetch("http://localhost:7789/account/logout", {
+    fetch("https://infinite-tor-24931.herokuapp.com/account/logout", {
       method: "DELETE",
       headers: {
         "Content-type": "application/json",
@@ -84,7 +84,7 @@ function App() {
   }
   useEffect(() => {
     if (token !== "" && !isTest && !data) {
-      fetch("http://localhost:5000/tasks/getTasks", {
+      fetch("https://shielded-mountain-53050.herokuapp.com/tasks/getTasks", {
         method: "POST",
         headers: {
           "Content-type": "application/json",
@@ -207,7 +207,7 @@ function App() {
     setData(newData);
     let curToken = newToken ? newToken : token;
     if (!isTest)
-      fetch("http://localhost:5000/tasks/updateAll", {
+      fetch("https://shielded-mountain-53050.herokuapp.com/tasks/updateAll", {
         method: "PATCH",
         headers: {
           "Content-type": "application/json",
@@ -245,7 +245,7 @@ function App() {
       },
     }));
     if (!isTest)
-      fetch("http://localhost:5000/tasks/update", {
+      fetch("https://shielded-mountain-53050.herokuapp.com/tasks/update", {
         method: "PATCH",
         headers: {
           "Content-type": "application/json",

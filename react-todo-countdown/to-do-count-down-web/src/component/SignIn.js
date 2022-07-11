@@ -33,7 +33,7 @@ function SignIn(props) {
         alert("The length of account and password need to be more than 5");
         return;
       }
-      fetch("http://localhost:7789/account/signUp", {
+      fetch("https://infinite-tor-24931.herokuapp.com/account/signUp", {
         method: "POST",
         headers: {
           "Content-type": "application/json",
@@ -58,7 +58,7 @@ function SignIn(props) {
           console.log(err);
         });
     } else {
-      fetch("http://localhost:7789/account/login", {
+      fetch("https://infinite-tor-24931.herokuapp.com/account/login", {
         method: "POST",
         headers: {
           "Content-type": "application/json",
