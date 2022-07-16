@@ -30,7 +30,7 @@ class InputPro extends React.Component{
                 stars:this.state.stars,
                 imgURL:this.state.imgURL
             }
-            fetch("http://localhost:5000/api/",{
+            fetch("https://cryptic-savannah-64840.herokuapp.com/api/",{
                 method:'POST',
                 headers:{
                     'Content-type':'application/json'

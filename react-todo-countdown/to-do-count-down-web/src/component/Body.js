@@ -3,6 +3,7 @@ import { Grid } from "@mui/material";
 import Note from "./notes/Note";
 import { nanoid } from "nanoid";
 import { Droppable } from "react-beautiful-dnd";
+import { UserData } from "./DataContext";
 
 export default class Body extends React.Component {
   constructor(props) {
@@ -52,6 +53,8 @@ export default class Body extends React.Component {
           updateNote={this.props.updateNote}
           deleteNote={()=>this.props.deleteNote(this.props.columnId,id,index)}
           isEdit={this.props.isDisable || this.props.isEdit}
+          goNextStep={this.props.goNextStep}
+          turnOffTutorial={this.props.turnOffTutorial}
         />
       )
     );

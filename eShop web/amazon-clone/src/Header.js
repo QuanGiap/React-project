@@ -22,7 +22,7 @@ export default function Header(props) {
     setSearchText(event.target.value);
   }
   function searchItem() {
-    fetch("http://localhost:5000/api/search?name=" + searchText)
+    fetch("https://cryptic-savannah-64840.herokuapp.com/api/search?name=" + searchText)
       .then((data) => data.json())
       .then((info) => {
         if (info.status === 200) props.changeProData(info.data);

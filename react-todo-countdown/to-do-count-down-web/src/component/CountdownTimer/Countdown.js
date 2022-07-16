@@ -43,6 +43,7 @@ export default class Countdown extends Component {
     let minutes = this.state.minutes;
     let seconds = this.state.seconds;
     if (hours == 0 && minutes == 0 && seconds == 0) {
+      if(this.props.turnOffTutorial) this.props.turnOffTutorial();
       this.props.toast();
       this.props.setDone();
       return;
@@ -51,12 +52,16 @@ export default class Countdown extends Component {
     if (seconds < 0) {
       if (minutes !== 0) {
         minutes -= 1;
-      } else {
-        hours -= 1;
-        minutes = 59;
-      }
+      } 
       seconds = 59;
     }
+    if (minutes < 0) {
+      if (hours !== 0) {
+        hours -= 1;
+      }
+      minutes = 59;
+    }
+    if(minutes<0||hours<0||seconds<0) alert("Negative value");
     this.makeOutLook(hours,minutes,seconds);
   }
   //make the clock easier to look 00:00:00

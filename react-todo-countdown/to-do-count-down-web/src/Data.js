@@ -63,6 +63,7 @@ const data = {
     },
     satuday: { tasksToDo: [] },
     sunday: { tasksToDo: [] },
+    daily:  {tasksToDo: []},
     store: { tasksToDo: [] },
   },
   columnsId: [

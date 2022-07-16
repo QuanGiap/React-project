@@ -33,7 +33,7 @@ class EditNote extends React.Component {
     if (name !== "desciption") {
       time = value;
       if (time > 60) time = 60;
-      else if (time < 0 || time === "") time = 0;
+      else if (time < 0) time = 0;
     }
     this.setState({ [name]: time == null ? value : time });
   }
@@ -53,7 +53,7 @@ class EditNote extends React.Component {
   render() {
     return (
       <div>
-        <Grid container style={{ marginBottom: "15px" }}>
+        <Grid container style={{ marginBottom: "15px" }} id="editNote">
           <Paper
             elevation={8}
             className={this.props.classes.inputNoteContainer}
@@ -70,7 +70,7 @@ class EditNote extends React.Component {
                   name="desciption"
                   id="desciption"
                   fullWidth
-                  label="Input you note here"
+                  label="Input your note desciption here"
                   rows={4}
                   multiline
                   value={this.state.desciption}
@@ -135,8 +135,8 @@ class EditNote extends React.Component {
                   <Grid item>
                     <Button variant="contained" onClick={this.onSubmit}>Save</Button>
                   </Grid>
-                  <Grid item>
-                    <Button variant="outlined" onClick={()=>this.props.updateNote(null,null)}>Cancel</Button>
+                  <Grid item id="cancelEditButton">
+                    <Button variant="outlined" onClick={()=>{this.props.updateNote(null,null);this.props.goNextStep()}}>Cancel</Button>
                   </Grid>
                 </Grid>
               </Grid>

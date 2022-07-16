@@ -164,6 +164,7 @@ export default class EditNoteList extends Component {
               taskId={this.state.taskIdEdit}
               editAnnounce={this.props.editAnnounce}
               updateNote={this.updateNote}
+              goNextStep={this.props.goNextStep}
             />
           </Grid>
         )}
@@ -188,6 +189,7 @@ export default class EditNoteList extends Component {
                 right: "0%",
                 zIndex: "2",
               }}
+              id="saveButton"
               onClick={() => {
                 this.props.setOrigin(this.state.cloneData);
                 this.setState({ IsChanged: false });
@@ -203,6 +205,7 @@ export default class EditNoteList extends Component {
             data={this.state.cloneData}
             classes={this.props.classes}
             deleteNote={this.deleteNote}
+            goNextStep={this.props.goNextStep}
           />
         </DragDropContext>
       </div>

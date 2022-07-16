@@ -25,7 +25,7 @@ class Login extends React.Component {
   }
   async getData(name){
     try{
-    let get = await fetch("http://localhost:5000/api/accounts/search?name="+name)
+    let get = await fetch("https://cryptic-savannah-64840.herokuapp.com/api/accounts/search?name="+name)
     get = await get.json();
       if(get.data==null) return null;
       else return get.data.name;
@@ -47,7 +47,7 @@ class Login extends React.Component {
             "name": this.state.account,
             "pass": this.state.pass
           }
-          await fetch('http://localhost:5000/api/accounts',{
+          await fetch('https://cryptic-savannah-64840.herokuapp.com/api/accounts',{
                   method:'POST',
                   headers:{
                     'Content-type':'application/json'
@@ -61,7 +61,7 @@ class Login extends React.Component {
         }
       }
       else{  
-        let get = await fetch('http://localhost:5000/api/accounts/check?name='+this.state.account+'&pass='+this.state.pass)
+        let get = await fetch('https://cryptic-savannah-64840.herokuapp.com/api/accounts/check?name='+this.state.account+'&pass='+this.state.pass)
         get = await get.json();
         if(get.result) {
           this.props.changeName(this.state.account);

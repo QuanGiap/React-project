@@ -51,7 +51,7 @@ function Note(props) {
       {(provided, snapshot) => (
         <Grid
           item
-          className={classes.noteContainer}
+          className={classes.noteContainer+" tasksNote"}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           ref={provided.innerRef}
@@ -74,10 +74,10 @@ function Note(props) {
               </Grid>
               {isEdit && (
                 <span style={{ position: "absolute", bottom: "0", left: "0" }}>
-                  <IconButton onClick={props.deleteNote}>
+                  <IconButton onClick={props.deleteNote} className="deleteIcon">
                     <DeleteIcon />
                   </IconButton>
-                  <IconButton onClick={props.setEdit}>
+                  <IconButton onClick={()=>{props.setEdit();if(props.goNextStep) props.goNextStep();}} className="editIcon">
                     <ModeEditIcon />
                   </IconButton>
                 </span>
@@ -93,19 +93,23 @@ function Note(props) {
                     >
                       <Grid item>
                         <Button
+                          className="startButton"
                           disabled={
                             !(!isEdit && (isChosen || props.choose === -1))
                           }
                           variant="contained"
-                          onClick={() =>
-                            props.changeChoice(props.index, props.choose)
+                          onClick={() =>{
+                            props.changeChoice(props.index, props.choose);
+                            if(props.goNextStep) props.goNextStep();
+                          }
                           }
                         >
-                          {props.choose === -1 ? "Start" : "Stop"}
+                          {props.choose !== props.index ? "Start" : "Stop"}
                         </Button>
                       </Grid>
                       <Grid item>
                         <Button
+                          className="resetButton"
                           disabled={
                             !(!isEdit && (isChosen || props.choose === -1)) ||
                             isChosen
@@ -113,6 +117,7 @@ function Note(props) {
                           variant="outlined"
                           onClick={() => {
                             ResetTimer();
+                            if(props.goNextStep) props.goNextStep();
                           }}
                         >
                           Reset
@@ -120,6 +125,7 @@ function Note(props) {
                       </Grid>
                       <Grid item style={{ marginTop: "5px" }}>
                         <Countdown
+                          turnOffTutorial={props.turnOffTutorial}
                           toast={props.toast}
                           isStart={isChosen}
                           isReset={isReset}

@@ -28,7 +28,7 @@ class InputNote extends React.Component {
     if (name !== "desciption") {
       time = value;
       if (time > 60) time = 60;
-      else if (time < 0 || time === "") time = 0;
+      else if (time < 0) time = 0;
     }
     this.setState({ [name]: time == null ? value : time });
   }
@@ -51,7 +51,7 @@ class InputNote extends React.Component {
         <Grid container style={{marginBottom:"15px"}}>
           <Paper
             elevation={8}
-            className={this.props.classes.inputNoteContainer}
+            className={this.props.classes.inputNoteContainer+" inputNote"}
           >
             <Grid container direction="column" spacing={1}>
               <Grid item>
@@ -74,6 +74,7 @@ class InputNote extends React.Component {
               </Grid>
               <Grid item>
                 <FormControlLabel
+                 className="switchTime"
                   control={
                     <Switch
                       checked={this.state.isTimer}
@@ -86,7 +87,7 @@ class InputNote extends React.Component {
                 />
               </Grid>
               <Grid item>
-                <Grid container spacing={1}>
+                <Grid container spacing={1} className="timerEdit">
                   <Grid item>
                     <TextField
                       disabled={!this.state.isTimer}
@@ -126,7 +127,7 @@ class InputNote extends React.Component {
                 </Grid>
               </Grid>
               <Grid item alignSelf="flex-end">
-                <Button variant="contained" onClick={this.onSubmit}>
+                <Button variant="contained" onClick={this.onSubmit} className="addButton">
                   Add
                 </Button>
               </Grid>

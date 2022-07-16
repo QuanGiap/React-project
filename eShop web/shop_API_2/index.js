@@ -6,6 +6,7 @@ let ProRepo = require("./repo/ProRepo");
 let errorHelpers = require("./helpers/errorHelpers");
 let AccountRepo = require("./repo/AccountRepo");
 let Blog = require("./model/blog");
+const PORT = process.env.PORT || 5000;
 require("dotenv").config();
 let mongoose = require("mongoose");
 //behind the quession mark in URL(.env) if objectName doesn't exist . it will create a new one
@@ -13,8 +14,8 @@ const dbURI = process.env.dbURL;
 mongoose
   .connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then((result) =>
-    app.listen(5000, function () {
-      console.log("Node is running on local host:5000");
+    app.listen(PORT, function () {
+      console.log("Node is running on local host "+PORT);
     })
   )
   .catch((err) => console.log(err));

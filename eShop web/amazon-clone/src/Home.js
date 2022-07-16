@@ -11,7 +11,7 @@ class Home extends React.Component{
     }
     componentDidMount(){
         if(!this.props.proData){
-        fetch("http://localhost:5000/api/")
+        fetch("https://cryptic-savannah-64840.herokuapp.com/api/")
         .then(data=>data.json())
         .then(info=>{
             if(info.status===200)

@@ -19,11 +19,10 @@ function SignIn(props) {
   }
   function switchSignPage() {
     setSignUp((prev) => !prev);
-    if (!isSignUp && textFail !== "") setTextFail("");
+    if (textFail !== "") setTextFail("");
   }
   let navigate = useNavigate();
   function submit() {
-    setLoad(true);
     if (isSignUp) {
       if (pass !== repass) {
         alert("password and repassword are not the same");
@@ -44,10 +43,15 @@ function SignIn(props) {
         }),
       })
         .then((res) => {
-          setLoad(false);
           if(res.ok) return res.json();
-        else throw new Error("There is something wrong")})
-        .then((data) => {
+          else throw new Error("There is something wrong")})
+          .then((data) => {
+          setLoad(false);
+          if(data.result===false){
+            setTextFail("This name account is already taken");
+            return;
+          }
+          props.setNewUser();
           props.setNewToken(data.accessToken);
           localStorage.setItem("refreshToken", data.refreshToken);
           navigate("/");
@@ -87,6 +91,7 @@ function SignIn(props) {
           setLoad(false);
           console.log(err);
         });
+        setLoad(true);
     }
   }
   return (
@@ -153,7 +158,7 @@ function SignIn(props) {
                 </Grid>
                 <Grid item>
                   <Button variant="outlined" onClick={switchSignPage}>
-                    Sign up
+                  Swich to {isSignUp ? "login" : "sign up"}
                   </Button>
                 </Grid>
               </Grid>

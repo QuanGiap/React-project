@@ -2,9 +2,11 @@ import React from "react";
 import { AppBar, Toolbar, Typography, Grid, Button } from "@mui/material";
 import ArticleIcon from "@mui/icons-material/Article";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import data from "../Data";
 
-function Navbar({ classes, token,setNewToken,turnTest,isTest }) {
+function Navbar({ classes, token,setNewToken,turnTest,isTest,hasData,goNextStep,turnOnTutorial}) {
+  const navigate = useNavigate();
   return (
     <AppBar position="sticky">
       <Toolbar className={classes.toolBarContainer}>
@@ -18,8 +20,8 @@ function Navbar({ classes, token,setNewToken,turnTest,isTest }) {
             width: "45%",
             marginLeft: "auto",
           }}
-        ><Grid item>
-        <Link to={isTest ? "/sign_in" : "/"} onClick={turnTest}>
+        >
+          <Grid item>
           <Button
             variant="outlined"
             style={{
@@ -27,29 +29,50 @@ function Navbar({ classes, token,setNewToken,turnTest,isTest }) {
               fontSize: "18px",
               border: "1px solid black",
             }}
+            onClick={()=>{
+              turnTest();
+              navigate(isTest ? "/sign_in" : "/")
+            }}
           >
             Turn {isTest ? "Off":"On"} test
           </Button>
-        </Link>
       </Grid>
+      {hasData && <Grid item>
+          <Button
+            variant="outlined"
+            style={{
+              backgroundColor: "white",
+              fontSize: "18px",
+              border: "1px solid black",
+              marginRight:"20px"
+            }}
+            onClick={()=>{
+              turnOnTutorial();
+            }}
+          >
+            Turn on tutorial
+          </Button>
+      </Grid>}
           <Grid item>
-            <Link to="/">
               <Button
-                variant="outlined"
+                variant="contained"
+                className="mainButton"
                 style={{
-                  backgroundColor: "white",
                   fontSize: "18px",
                   border: "1px solid black",
                 }}
+                disabled={!hasData}
+                onClick={()=>navigate("/")}
               >
                 Main page
               </Button>
-            </Link>
           </Grid>
           <Grid item>
-            <Link to="/edit_notes">
               <Button
+               className="editButton"
                 variant="outlined"
+                disabled={!hasData}
+                onClick={()=>{navigate("/edit_notes");goNextStep()}}
                 style={{
                   backgroundColor: "white",
                   fontSize: "18px",
@@ -58,17 +81,14 @@ function Navbar({ classes, token,setNewToken,turnTest,isTest }) {
               >
                 Edit task
               </Button>
-            </Link>
           </Grid>
           {token !== "" && (
-            <Grid item className={classes.helloGuestTitle}>
-              <Link to="/sign_in" onClick={()=>setNewToken("")}>
+            <Grid item>
                 <Typography variant="h5">Hello user</Typography>
-                <Typography variant="h6" textAlign="center">
+                <Typography variant="h6" textAlign="center" onClick={()=>{setNewToken("");navigate("/sign_in")}} className={classes.helloGuestTitle}>
                   <AccountCircleIcon />
                   Log Out
                 </Typography>
-              </Link>
             </Grid>
           )}
         </Grid>
