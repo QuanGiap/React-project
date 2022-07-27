@@ -60,7 +60,7 @@ function Note(props) {
             provided.draggableProps.style
           )}
         >
-          <Paper style={{ padding: "10px" }}>
+          <Paper style={{ padding: "10px",backgroundColor:(isChosen) ? "green":"init" }}>
             <Grid
               container
               spacing={1}

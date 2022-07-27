@@ -1,24 +1,31 @@
 import React from "react";
-import { Grid } from "@mui/material";
+import { Grid, Paper } from "@mui/material";
 import Note from "./notes/Note";
 import { nanoid } from "nanoid";
 import { Droppable } from "react-beautiful-dnd";
 import { UserData } from "./DataContext";
-
+import MainTask from "./MainTask";
 export default class Body extends React.Component {
   constructor(props) {
     super(props);
     this.getListStyle = this.getListStyle.bind(this);
     this.state = {
       choose: -1,
+      //setting for a big clock
+      mainTaskData: {},
     };
     this.changeChoice = this.changeChoice.bind(this);
   }
   changeChoice(index, prev) {
+    //if prev choice is === choice => task need to stop
     if (prev === index) this.setState({ choose: -1 });
-    else this.setState({ choose: index });
-  }
-  componentDidUpdate() {
+    else {
+      //else set differt task to start
+      this.setState((state, props) => ({
+        choose: index,
+        mainTaskData: (index!==-1) ? props.data[props.taskIds[index]] : {},
+      }));
+    }
   }
   getListStyle = (isDraggingOver, dropableStyle) => ({
     // styles we need to apply on dropable
@@ -42,7 +49,7 @@ export default class Body extends React.Component {
         index //columnId, taskId, posInColumn
       ) => (
         <Note
-          setEdit={()=>this.props.setEdit(id)}
+          setEdit={() => this.props.setEdit(id)}
           data={data[id]}
           key={nanoid()}
           taskId={id}
@@ -51,7 +58,9 @@ export default class Body extends React.Component {
           choose={this.state.choose}
           changeChoice={this.changeChoice}
           updateNote={this.props.updateNote}
-          deleteNote={()=>this.props.deleteNote(this.props.columnId,id,index)}
+          deleteNote={() =>
+            this.props.deleteNote(this.props.columnId, id, index)
+          }
           isEdit={this.props.isDisable || this.props.isEdit}
           goNextStep={this.props.goNextStep}
           turnOffTutorial={this.props.turnOffTutorial}
@@ -59,25 +68,30 @@ export default class Body extends React.Component {
       )
     );
     return (
-      <Droppable droppableId={this.props.columnId} direction={this.props.dir}>
-        {(provided, snapshot) => (
-          <Grid
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            style={this.getListStyle(
-              snapshot.isDraggingOver,
-              provided.droppableProps.style
-            )}
-            container
-            spacing={1}
-            className={this.props.classes.boxOfNotes}
-            direction={this.props.flexDir}
-          >
-            {notes}
-            {provided.placeholder}
-          </Grid>
+      <>
+        {!this.props.isEdit && (
+          <MainTask choose={this.state.choose} data={this.state.mainTaskData}/>
         )}
-      </Droppable>
+        <Droppable droppableId={this.props.columnId} direction={this.props.dir}>
+          {(provided, snapshot) => (
+            <Grid
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              style={this.getListStyle(
+                snapshot.isDraggingOver,
+                provided.droppableProps.style
+              )}
+              container
+              spacing={1}
+              className={this.props.classes.boxOfNotes}
+              direction={this.props.flexDir}
+            >
+              {notes}
+              {provided.placeholder}
+            </Grid>
+          )}
+        </Droppable>
+      </>
     );
   }
 }

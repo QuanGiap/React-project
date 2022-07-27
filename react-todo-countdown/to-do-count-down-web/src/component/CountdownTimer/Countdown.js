@@ -16,7 +16,7 @@ export default class Countdown extends Component {
   }
   saveData(){
     const newData = {
-      taskId:this.props.taskId,
+      taskId:this.props.taskId||"",
       hoursRemain:parseInt(this.state.hours),
       minutesRemain:parseInt(this.state.minutes),
       secondsRemain:parseInt(this.state.seconds),
@@ -25,16 +25,19 @@ export default class Countdown extends Component {
   }
   //make the clock easier to look at begining
   componentDidMount(){
+    
+    this.makeOutLook(this.state.hours,this.state.minutes,this.state.seconds);
     if(this.props.isStart) {
-      const id = setInterval(this.TimeProcess, 1000);
+      this.TimeProcess();
+      const id = setInterval(()=>this.TimeProcess(), 1000);
       this.setState({intervalID : id});
     }
-    this.makeOutLook(this.state.hours,this.state.minutes,this.state.seconds);
   }
   componentWillUnmount() {
     if(this.props.isStart&&!this.props.isEdit){
       this.saveData();
     }
+    if(this.props.setCurTime) this.props.setCurTime(`${this.state.hours}:${this.state.minutes}:${this.state.seconds}`)
     clearInterval(this.state.intervalID);
   }
   //create function that do like a clock
@@ -44,22 +47,18 @@ export default class Countdown extends Component {
     let seconds = this.state.seconds;
     if (hours == 0 && minutes == 0 && seconds == 0) {
       if(this.props.turnOffTutorial) this.props.turnOffTutorial();
-      this.props.toast();
-      this.props.setDone();
+      if(this.props.toast) this.props.toast();
+      if(this.props.setDone) this.props.setDone();
       return;
     }
     seconds -= 1;
     if (seconds < 0) {
-      if (minutes !== 0) {
-        minutes -= 1;
-      } 
+      minutes -= 1;
       seconds = 59;
-    }
-    if (minutes < 0) {
-      if (hours !== 0) {
-        hours -= 1;
+      if(minutes<0){
+        hours -=1;
+        minutes = 59;
       }
-      minutes = 59;
     }
     if(minutes<0||hours<0||seconds<0) alert("Negative value");
     this.makeOutLook(hours,minutes,seconds);
@@ -69,12 +68,13 @@ export default class Countdown extends Component {
     hours = parseInt(hours);
     minutes = parseInt(minutes);
     seconds = parseInt(seconds);
+    if(this.props.calculateProcess)this.props.calculateProcess(hours,minutes,seconds);
     if(hours<10) hours= '0' + hours;
     if(minutes<10) minutes= '0' + minutes;
     if(seconds<10) seconds= '0' + seconds;
     this.setState({ hours: hours, minutes: minutes, seconds: seconds });
   }
   render() {
-    return <Typography variant="body1" style={{fontSize:"25px"}}>{this.state.hours}:{this.state.minutes}:{this.state.seconds}</Typography>;
+    return <Typography style={{fontSize:"25px"}}>{this.state.hours}:{this.state.minutes}:{this.state.seconds}</Typography>;
   }
 }

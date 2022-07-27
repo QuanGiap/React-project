@@ -8,6 +8,10 @@ function SignIn(props) {
   const [isSignUp, setSignUp] = React.useState(false);
   const [textFail, setTextFail] = React.useState("");
   const [isLoading, setLoad] = React.useState(false);
+  function announceError(textError){
+    setTextFail(textError);
+    setLoad(false);
+  }
   function handleAccount(event) {
     setAccount(event.target.value);
   }
@@ -19,17 +23,19 @@ function SignIn(props) {
   }
   function switchSignPage() {
     setSignUp((prev) => !prev);
-    if (textFail !== "") setTextFail("");
+    if (textFail !== "") announceError("");
   }
   let navigate = useNavigate();
   function submit() {
+    setTextFail("");
+    setLoad(true);
     if (isSignUp) {
       if (pass !== repass) {
-        alert("password and repassword are not the same");
+        announceError("password and repassword are not the same");
         return;
       }
       if (account.length < 6 || pass.length < 6) {
-        alert("The length of account and password need to be more than 5");
+        announceError("The length of account and password need to be more than 5");
         return;
       }
       fetch("https://infinite-tor-24931.herokuapp.com/account/signUp", {
@@ -46,19 +52,18 @@ function SignIn(props) {
           if(res.ok) return res.json();
           else throw new Error("There is something wrong")})
           .then((data) => {
-          setLoad(false);
-          if(data.result===false){
-            setTextFail("This name account is already taken");
-            return;
-          }
+            if(data.result===false){
+              announceError("This name account is already taken");
+              return;
+            }
+          announceError("");
           props.setNewUser();
           props.setNewToken(data.accessToken);
           localStorage.setItem("refreshToken", data.refreshToken);
           navigate("/");
         })
         .catch((err) => {
-          setTextFail("Server error");
-          setLoad(false);
+          announceError("Server error");
           console.log(err);
         });
     } else {
@@ -84,20 +89,18 @@ function SignIn(props) {
             props.setNewToken(data.accessToken);
             localStorage.setItem("refreshToken", data.refreshToken);
             navigate("/");
-          } else setTextFail("Your account or password not correct");
+          } else announceError("Your account or password not correct");
         })
         .catch((err) => {
-          setTextFail("Server error");
-          setLoad(false);
+          announceError("Server error");
           console.log(err);
         });
-        setLoad(true);
     }
   }
   return (
     <Grid container justifyContent="center" style={{ marginTop: "50px" }}>
       <Grid item>
-        <Paper style={{ padding: "10px" }}>
+        <Paper style={{ padding: "10px", width:"500px"}}>
           <Typography variant="h6" textAlign="center">
             {isSignUp ? "Sign up" : "Login"}
           </Typography>
@@ -137,15 +140,15 @@ function SignIn(props) {
             )}
             {textFail !== "" && (
               <Grid item>
-                <Typography variant="body" style={{ color: "red" }} textAlign="center">
+                <Typography style={{ color: "red",width:"100%" }} textAlign="center">
                   {textFail}
                 </Typography>
               </Grid>
             )}
             {isLoading && (
               <Grid item>
-                <Typography variant="body">
-                  Loading...
+                <Typography  style={{width:"100%" }} textAlign="center">
+                  Loading...Please wait
                 </Typography>
               </Grid>
             )}
