@@ -21,7 +21,7 @@ export default class Countdown extends Component {
       minutesRemain:parseInt(this.state.minutes),
       secondsRemain:parseInt(this.state.seconds),
     }
-    if(this.props.updateNote) this.props.updateNote(newData)
+    this.props.updateNote?.(newData)
   }
   //make the clock easier to look at begining
   componentDidMount(){
@@ -37,7 +37,7 @@ export default class Countdown extends Component {
     if(this.props.isStart&&!this.props.isEdit){
       this.saveData();
     }
-    if(this.props.setCurTime) this.props.setCurTime(`${this.state.hours}:${this.state.minutes}:${this.state.seconds}`)
+    this.props.setCurTime?.(`${this.state.hours}:${this.state.minutes}:${this.state.seconds}`)
     clearInterval(this.state.intervalID);
   }
   //create function that do like a clock

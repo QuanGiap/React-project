@@ -8,6 +8,7 @@ import {
   Switch,
   FormControlLabel,
 } from "@mui/material";
+import { announce } from "../toast/Toast";
 
 class InputNote extends React.Component {
   constructor(props) {
@@ -41,7 +42,7 @@ class InputNote extends React.Component {
       minutesRemain: this.state.minutes,
       secondsRemain: this.state.seconds,
     }
-      this.props.announce();
+      announce();
       this.props.AddNote(note);
     }
   }

@@ -14,6 +14,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ArticleIcon from "@mui/icons-material/Article";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import data from "../Data";
 
 function Navbar({
@@ -27,6 +28,7 @@ function Navbar({
   turnOnTutorial,
 }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   //menu component
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -125,6 +127,7 @@ function Navbar({
                     handleClose();
                     setNewToken("");
                     navigate("/sign_in");
+                    queryClient.cancelQueries("getUserDataTasks");
                   }}
                 >
                   Log Out

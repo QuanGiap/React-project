@@ -160,9 +160,7 @@ export default class EditNoteList extends Component {
               hours={task.hours}
               isTimer={task.isTimer}
               desciption={task.desciption}
-              error={this.props.error}
               taskId={this.state.taskIdEdit}
-              editAnnounce={this.props.editAnnounce}
               updateNote={this.updateNote}
               goNextStep={this.props.goNextStep}
             />
@@ -170,7 +168,6 @@ export default class EditNoteList extends Component {
         )}
         <InputNote
           classes={this.props.classes}
-          announce={this.props.announce}
           error={this.props.error}
           updateNote={this.updateNote}
           AddNote={(note) => {

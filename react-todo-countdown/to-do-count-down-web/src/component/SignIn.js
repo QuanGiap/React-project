@@ -1,6 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Paper, Grid, TextField, Button, Typography } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
+import { login, signUp } from "../fetch/FetchData";
+
 function SignIn(props) {
   const [account, setAccount] = React.useState("");
   const [pass, setPass] = React.useState("");
@@ -8,7 +11,7 @@ function SignIn(props) {
   const [isSignUp, setSignUp] = React.useState(false);
   const [textFail, setTextFail] = React.useState("");
   const [isLoading, setLoad] = React.useState(false);
-  function announceError(textError){
+  function announceError(textError) {
     setTextFail(textError);
     setLoad(false);
   }
@@ -26,81 +29,72 @@ function SignIn(props) {
     if (textFail !== "") announceError("");
   }
   let navigate = useNavigate();
+  //function handle for sign in the account
+  const { refetch: startLogin } = useQuery(
+    ["userLogin"],
+    () => login(account, pass),
+    {
+      onSuccess: (res) => {
+        if (res.data.accessToken) {
+          props.setNewToken(res.data.accessToken);
+          localStorage.setItem("refreshToken", res.data.refreshToken);
+          navigate("/");
+        } else announceError("Your account or password not correct");
+      },
+      onError: (err) => {
+        announceError("Bad request error");
+        console.log(err);
+      },
+      enabled: false,
+    }
+  );
+  //function handle for sign up the account
+  const { refetch: startSignUp } = useQuery(
+    ["userSignUp"],
+    () => signUp(account, pass),
+    {
+      onSuccess: (res) => {
+        if (res.data.result === false) {
+          announceError("This name account is already taken");
+          return;
+        }
+        announceError("");
+        props.setNewUser();
+        props.setNewToken(res.data.accessToken);
+        localStorage.setItem("refreshToken", res.data.refreshToken);
+        navigate("/");
+      },
+      onError: (err) => {
+        announceError("Bad request error");
+        console.log(err);
+      },
+      enabled: false,
+    }
+  );
+
   function submit() {
     setTextFail("");
     setLoad(true);
+    if (account.length < 6 || pass.length < 6) {
+      announceError(
+        "The length of account and password need to be more than 5"
+      );
+      return;
+    }
     if (isSignUp) {
       if (pass !== repass) {
         announceError("password and repassword are not the same");
         return;
       }
-      if (account.length < 6 || pass.length < 6) {
-        announceError("The length of account and password need to be more than 5");
-        return;
-      }
-      fetch("https://infinite-tor-24931.herokuapp.com/account/signUp", {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({
-          name: account,
-          pass: pass,
-        }),
-      })
-        .then((res) => {
-          if(res.ok) return res.json();
-          else throw new Error("There is something wrong")})
-          .then((data) => {
-            if(data.result===false){
-              announceError("This name account is already taken");
-              return;
-            }
-          announceError("");
-          props.setNewUser();
-          props.setNewToken(data.accessToken);
-          localStorage.setItem("refreshToken", data.refreshToken);
-          navigate("/");
-        })
-        .catch((err) => {
-          announceError("Server error");
-          console.log(err);
-        });
+      startSignUp();
     } else {
-      fetch("https://infinite-tor-24931.herokuapp.com/account/login", {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({
-          name: account,
-          pass: pass,
-        }),
-      })
-        .then((res) => {
-          setLoad(false);
-          if (res.ok) return res.json();
-          else {
-            throw new Error("There is something wrong");
-          }
-        })
-        .then((data) => {
-          if (data.accessToken) {
-            props.setNewToken(data.accessToken);
-            localStorage.setItem("refreshToken", data.refreshToken);
-            navigate("/");
-          } else announceError("Your account or password not correct");
-        })
-        .catch((err) => {
-          announceError("Server error");
-          console.log(err);
-        });
+      startLogin();
     }
   }
   return (
     <Grid container justifyContent="center" style={{ marginTop: "50px" }}>
       <Grid item>
-        <Paper style={{ padding: "10px", width:"500px"}}>
+        <Paper style={{ padding: "10px", width: "100%" }}>
           <Typography variant="h6" textAlign="center">
             {isSignUp ? "Sign up" : "Login"}
           </Typography>
@@ -140,14 +134,17 @@ function SignIn(props) {
             )}
             {textFail !== "" && (
               <Grid item>
-                <Typography style={{ color: "red",width:"100%" }} textAlign="center">
+                <Typography
+                  style={{ color: "red", width: "100%" }}
+                  textAlign="center"
+                >
                   {textFail}
                 </Typography>
               </Grid>
             )}
             {isLoading && (
               <Grid item>
-                <Typography  style={{width:"100%" }} textAlign="center">
+                <Typography style={{ width: "100%" }} textAlign="center">
                   Loading...Please wait
                 </Typography>
               </Grid>
@@ -161,7 +158,7 @@ function SignIn(props) {
                 </Grid>
                 <Grid item>
                   <Button variant="outlined" onClick={switchSignPage}>
-                  Swich to {isSignUp ? "login" : "sign up"}
+                    Swich to {isSignUp ? "login" : "sign up"}
                   </Button>
                 </Grid>
               </Grid>

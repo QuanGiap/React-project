@@ -9,6 +9,7 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import useStyle from "./style";
+import {taskInputError,editAnnounce} from "../toast/Toast"
 
 function SubClass(props){
     const classes = useStyle();
@@ -38,7 +39,7 @@ class EditNote extends React.Component {
     this.setState({ [name]: time == null ? value : time });
   }
   onSubmit(event) {
-    if (this.state.hours > 24 || this.state.desciption === "") this.props.error();
+    if (this.state.hours > 24 || this.state.desciption === "") taskInputError();
     else {
       const note = {
         ...this.state,
@@ -46,7 +47,7 @@ class EditNote extends React.Component {
         minutesRemain: this.state.minutes,
         secondsRemain: this.state.seconds,
         };
-        this.props.editAnnounce();
+        editAnnounce();
         this.props.updateNote(this.props.taskId,note);
     }
   }

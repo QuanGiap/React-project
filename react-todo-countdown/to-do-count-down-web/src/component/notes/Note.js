@@ -5,6 +5,7 @@ import useStyle from "../style";
 import Countdown from "../CountdownTimer/Countdown";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
+import data from "../../Data";
 
 function Note(props) {
   const isFinish =
@@ -13,6 +14,9 @@ function Note(props) {
     props.data.minutesRemain === 0;
   const [isReset, setReset] = React.useState(false);
   const classes = useStyle();
+  const isEdit = props.isEdit ? true : false;
+  const isChosen = props.choose === props.index;
+  const colorBackgoundPaper = (isChosen)? "orange": (isFinish && props.data.isTimer) ? "green" : "init";
   const getItemStyle = (isDragging, draggableStyle) => ({
     // styles we need to apply on draggables
     width: props.isEdit ? "400px" : "80%",
@@ -22,8 +26,6 @@ function Note(props) {
       opacity: "0.5",
     }),
   });
-  const isEdit = props.isEdit ? true : false;
-  const isChosen = props.choose === props.index;
   function ResetTimer() {
     setDone();
     setReset(true);
@@ -60,7 +62,7 @@ function Note(props) {
             provided.draggableProps.style
           )}
         >
-          <Paper style={{ padding: "10px",backgroundColor:(isChosen) ? "green":"init" }}>
+          <Paper style={{ padding: "10px",backgroundColor: colorBackgoundPaper }}>
             <Grid
               container
               spacing={1}
@@ -84,7 +86,7 @@ function Note(props) {
               )}
               {props.data.isTimer && (
                 <Grid item style={{ marginLeft: "auto" }}>
-                  {!isFinish && (
+                  {(!isFinish || isEdit) && (
                     <Grid
                       container
                       direction="row"
@@ -150,8 +152,8 @@ function Note(props) {
                       </Grid>
                     </Grid>
                   )}
-                  {isFinish && !isReset && (
-                    <Button disabled={isEdit} onClick={ResetTimer}>
+                  {isFinish && !isReset && !isEdit && (
+                    <Button disabled={isEdit} onClick={ResetTimer} style={{color:"white"}}>
                       Restart
                     </Button>
                   )}

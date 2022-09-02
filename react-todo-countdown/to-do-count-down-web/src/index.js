@@ -5,6 +5,9 @@ import App from "./App";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider,useQuery } from '@tanstack/react-query';
+const queryClient = new QueryClient();
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <>
@@ -19,8 +22,10 @@ root.render(
       draggable={false}
       pauseOnHover={false}
     />
+    <QueryClientProvider client={queryClient}>
     <BrowserRouter>
     <App />
     </BrowserRouter>
+    </QueryClientProvider>
   </>
 );

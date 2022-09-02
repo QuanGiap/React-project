@@ -18,11 +18,13 @@ import SignIn from "./component/SignIn";
 import { Typography } from "@mui/material";
 import JoyRide, { ACTIONS, EVENTS, STATUS } from "react-joyride";
 import { stepsTurtorialData } from "./component/TutorialData";
+import { ExpiredAnnounce } from "./toast/Toast";
+import { useQuery,useMutation } from "@tanstack/react-query";
+import { getDataTask,generateNewToken } from "./fetch/FetchData";
 
 function App() {
   const classes = useStyle();
   const [data, setData] = React.useState(null);
-  const [isSet, changeSet] = React.useState(false);
   const [token, setToken] = React.useState(localStorage.getItem("token") || "");
   const [isTest, setTest] = React.useState(false);
   const nav = useNavigate();
@@ -31,7 +33,8 @@ function App() {
   const [isNewUser, setNewUser] = React.useState(false);
   const [isRun, setRun] = React.useState(false);
   const [indexStep, setIndexStep] = React.useState(0);
-  const [steps, setSteps] = React.useState(stepsTurtorialData);
+  const steps = stepsTurtorialData;
+
   //create a special case where user click will button that is pointed to go to the next step
   function goNextStep() {
     setIndexStep((prev) => prev + 1);
@@ -42,7 +45,11 @@ function App() {
     if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
       // Update state to advance the tour
       setIndexStep(index + 1);
-    } else if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+    } else if (
+      [STATUS.FINISHED, STATUS.SKIPPED].includes(status) ||
+      data.action === "close"
+    ) {
+      console.log("stopped");
       // Need to set our running state to false, so we can restart if we click start again.
       setRun(false);
     }
@@ -56,9 +63,44 @@ function App() {
     day = data.columnsId[day];
     taskIds = data.columns[day].tasksToDo;
   }
+  //get data task from token sign in
+  const { refetch: getUserDataTask ,data:userData} = useQuery(
+    ["getUserDataTasks"],
+    getDataTask,
+    {
+      enabled: token!=="" && !isTest && !data,
+      onSuccess: (res) => {
+        setData(res.data);
+        if (isNewUser) setRun(true);
+      },
+      onError: (err) => {
+        ExpiredAnnounce();
+        setNewToken("");
+        console.log(err);
+      },
+      retry: 2,
+    }
+  );
+  //setting new token
+  // const { refetch: getUserNewToken} = useQuery(
+  //   ["getUserNewToken"],
+  //   generateNewToken,
+  //   {
+  //     enabled: false,
+  //     onSuccess: (res) => {
+  //       setNewToken(res.data.accessToken);
+  //     },
+  //     onError: (err) => {
+  //       ExpiredAnnounce();
+  //       setNewToken("");
+  //       console.log(err);
+  //     },
+  //   }
+  // );
+
   //getting new token from given refresh token and then run given function
   function getNewToken(funct, newData) {
-    console.log("Setting new token")
+    console.log("Setting new token");
     fetch("https://infinite-tor-24931.herokuapp.com/account/token", {
       method: "POST",
       headers: {
@@ -111,27 +153,7 @@ function App() {
       setToken("");
     }
   }
-  useEffect(() => {
-    if (token !== "" && !isTest && !data) {
-      fetch("https://shielded-mountain-53050.herokuapp.com/tasks/getTasks", {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-        body: JSON.stringify({ test: "test" }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setData(data);
-          if (isNewUser) setRun(true);
-        })
-        .catch((err) => {
-          setToken("");
-          localStorage.removeItem("token");
-        });
-    }
-  }, [token]);
+
   function setNewToken(newToken) {
     setToken(newToken);
     localStorage.setItem("token", newToken);
@@ -147,58 +169,6 @@ function App() {
   // function setNewData(newData){
   //   setData(newData);
   // }
-  //add toast
-  const notify = () =>
-    toast.info("You just finish the task!", {
-      position: "top-center",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: false,
-      progress: undefined,
-    });
-  const announce = () =>
-    toast.success("New task just created! Check the store", {
-      position: "top-center",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: false,
-      progress: undefined,
-    });
-  const EditAnnounce = () =>
-    toast.success("Save success!", {
-      position: "top-center",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: false,
-      progress: undefined,
-    });
-  const error = () =>
-    toast.error("The task is no longer 24 hours and context is not empty", {
-      position: "top-center",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: false,
-      progress: undefined,
-    });
-  const ExpiredAnnounce = () =>
-    toast.error("Token is expired please log in again", {
-      position: "top-center",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: false,
-      progress: undefined,
-    });
-  /////////////
 
   //change the order of the index after done dragging
   function onDragEnd(result) {
@@ -265,9 +235,6 @@ function App() {
 
   //change note data
   function updateNote(newData, newToken) {
-    //use for detech the user has click start and stop button
-    if (!isSet) changeSet(true);
-
     let curToken = newToken ? newToken : token;
     let oldData = data.tasks[newData.taskId];
     setData((prev) => ({
@@ -300,10 +267,11 @@ function App() {
           if (res.ok) return res.json();
           //if token is expired call get new token
           else getNewToken(updateNote, newData);
-        }).catch(err=>console.log(err))
-        // .then((data) => {
-        //   console.log(data);
-        // });
+        })
+        .catch((err) => console.log(err));
+    // .then((data) => {
+    //   console.log(data);
+    // });
   }
   return (
     <div>
@@ -318,7 +286,7 @@ function App() {
           setIndexStep(0);
           //reason set timeout here because it will help run tutorial successfully without cause a bug
           //Basically need to set the step tutorial first before start the tutorial, since the setState run sync so 2 state is set at the same time
-          setTimeout(()=>setRun(true),50)
+          setTimeout(() => setRun(true), 50);
         }}
         isTest={isTest}
         goNextStep={goNextStep}
@@ -333,7 +301,6 @@ function App() {
         stepIndex={indexStep}
         scrollOffset={300}
         showProgress
-        hideCloseButton
         disableCloseOnEsc
         disableOverlayClose
         styles={{
@@ -392,7 +359,6 @@ function App() {
                     columnId={day}
                     flexDir="column"
                     isDisable={false}
-                    toast={notify}
                   />
                 )}
               </DragDropContext>
@@ -421,11 +387,8 @@ function App() {
                 )}
                 {data != null && (
                   <EditNoteList
-                    editAnnounce={EditAnnounce}
                     onDragEnd={onDragEnd}
                     classes={classes}
-                    announce={announce}
-                    error={error}
                     data={{ ...data }}
                     setOrigin={setOrigin}
                     goNextStep={goNextStep}
@@ -437,14 +400,18 @@ function App() {
         />
         <Route
           path="/sign_in"
-          element={ (data==null) ? 
-            <SignIn
-              setNewToken={setNewToken}
-              setNewUser={() => {
-                setNewUser(true);
-                setIndexStep(0);
-              }}
-            /> : <Navigate to="/"/>
+          element={
+            data == null ? (
+              <SignIn
+                setNewToken={setNewToken}
+                setNewUser={() => {
+                  setNewUser(true);
+                  setIndexStep(0);
+                }}
+              />
+            ) : (
+              <Navigate to="/" />
+            )
           }
         />
         <Route path="*" element={<h1>No pages 404</h1>} />
