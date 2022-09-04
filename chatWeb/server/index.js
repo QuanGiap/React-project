@@ -1,11 +1,27 @@
 const WebSocket = require("ws");
+const PORT = process.env.PORT || 8000;
+var express = require('express');
+const { Server } = require('ws');
 //wss prever the server
-const wss = new WebSocket.Server({ port: 8000 });
+const INDEX = '/index.html'
+
+const server = express()
+  .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
+  .listen(PORT, () => console.log(`Listening on ${PORT}`));
+
+
+const wss = new Server({ server });
 
 let id = 0;
 let lookup = {};
-let roomsChat={};
+let roomsChat = {};
 const nameSet = new Set();
+const newUserJoinRoom = (user) => {
+  if(!roomsChat.hasOwnProperty(user.roomId)) throw new Error("There is no room id");
+  lookup[user.userId].roomJoined.push(user.roomId);
+  roomsChat[user.roomId].clients.push(user.userId);
+};
+// const userLeftRoom = (user) => {};
 const listOfUsers = () => {
   return Object.entries(lookup).map((entry) => {
     return {
@@ -18,30 +34,15 @@ wss.on("connection", (ws) => {
   ws.on("message", (data) => {
     try {
       req = JSON.parse(data);
+      console.log(req);
       if (!req.type) throw new Error("There is no type");
       switch (req.type) {
-        case "TEST":
-          //to send message use lookup[id].send to send a specific user
-          ws.send(
-            JSON.stringify({
-              type: "MESSAGE",
-              result: true,
-              data: {
-                text: `Your id is ${ws.id} and your name is ${
-                  lookup[ws.id].name || "NOT NAMED YET"
-                }`,
-                yourId: ws.id,
-              },
-              message: "got it success",
-            })
-          );
-          break;
         case "SIGN_IN":
           if (nameSet.has(req.data.userName))
             throw new Error(
               "Somebody is currently use this name, please type the other name"
             );
-            console.log("new user join in")
+          console.log("new user join in");
           ws.send(
             JSON.stringify({
               data: {
@@ -69,7 +70,7 @@ wss.on("connection", (ws) => {
             );
           });
           ws.id = id++;
-          lookup[ws.id] = { ws, name: req.data.userName };
+          lookup[ws.id] = { ws, name: req.data.userName, roomJoined: [] };
           nameSet.add(req.data.userName);
           break;
         case "SEND_PUBLIC":
@@ -81,7 +82,7 @@ wss.on("connection", (ws) => {
                   result: true,
                   data: {
                     isPublic: true,
-                    userId:-1,
+                    userId: -1,
                     text: req.text,
                     userName: lookup[req.userId]?.name || "error name",
                   },
@@ -92,7 +93,7 @@ wss.on("connection", (ws) => {
           break;
         case "SEND_PRIVATE":
           //if there is no clientId, error called
-          if (!!req.clientId) throw new Error("clientId not exist");
+          if (req.clientId===undefined) throw new Error("clientId not exist");
           if (!lookup[req.clientId])
             throw new Error("This user name not exist or wrong id");
           lookup[req.clientId].ws.send(
@@ -109,52 +110,67 @@ wss.on("connection", (ws) => {
             })
           );
           break;
-          case "CREATE_GROUP_CHAT":
-            if (!req.roomId) throw new Error("There is no room id");
-            roomsChat[req.roomId] = [req.userId];
-            ws.send(
-              JSON.stringify({
-                type: "ANNOUNCE",
-                result: true,
-                message: "Create room success",
-              })
-            );
-            break;
-            case "JOIN_GROUP_CHAT":
-              if (!req.roomId) throw new Error("There is no room id");
-              if(!roomsChat.hasOwnProperty(req.roomId)) throw new Error("This room id not exist")
-              roomsChat[req.roomId].push(req.userId);
-            ws.send(
-              JSON.stringify({
-                type: "ANNOUNCE",
-                result: true,
-                message: "Join room success",
-              })
-            );
-            break;
-          case "GROUP_CHAT":
-            if (!req.roomId) throw new Error("There is no room id");
-            if(!roomsChat.hasOwnProperty(req.roomId)) throw new Error("This room id not exist")
-            roomsChat[req.roomId].forEach((clientId)=>{
-              if(clientId!=req.userId){
-                lookup[clientId].ws.send(JSON.stringify({
+        case "CREATE_ROOM_CHAT":
+          if (!req.roomId) throw new Error("There is no room id");
+          roomsChat[req.roomId]={
+            clients:[],
+            roomName:req.roomName
+          };
+          newUserJoinRoom(req);
+          ws.send(
+            JSON.stringify({
+              type: "CREATE_ROOM_RESULT",
+              result: true,
+              data:{id:req.roomId,roomName:req.roomName},
+              message: "Create room success",
+            })
+          );
+          break;
+        case "JOIN_ROOM_CHAT":
+          if (!req.roomId) throw new Error("There is no room id");
+          if (!roomsChat.hasOwnProperty(req.roomId)) throw new Error("This room id not exist");
+          //check if user already join this room
+          const isAlreadyJoined = lookup[req.userId].roomJoined.some(roomId=>roomId===req.roomId);
+          if(isAlreadyJoined) throw new Error("This room id is already joined");
+          newUserJoinRoom(req);
+          ws.send(
+            JSON.stringify({
+              type: "JOIN_ROOM_RESULT",
+              result: true,
+              data:{
+                roomId: req.roomId,
+                roomName: roomsChat[req.roomId].roomName
+              },
+              message: "Join room success",
+            })
+          );
+          break;
+        case "ROOM_CHAT":
+          if (!req.roomId) throw new Error("There is no room id");
+          if (!roomsChat.hasOwnProperty(req.roomId))
+            throw new Error("This room id not exist");
+          roomsChat[req.roomId].clients.forEach((clientId) => {
+            if (clientId != req.userId) {
+              lookup[clientId].ws.send(
+                JSON.stringify({
                   type: "MESSAGE",
                   result: true,
                   data: {
-                    roomId:req.roomId,
+                    roomId: req.roomId,
                     isPublic: true,
                     userId: req.userId,
                     text: req.text,
                     userName: lookup[req.userId]?.name || "error name",
                   },
                   message: "got it success",
-                }))
-              }
-            })
-            break;
+                })
+              );
+            }
+          });
+          break;
         default:
           throw new Error("This type is not exist in server");
-      }
+        }
     } catch (err) {
       ws.send(
         JSON.stringify({
@@ -166,8 +182,8 @@ wss.on("connection", (ws) => {
     }
   });
   ws.on("close", () => {
-    console.log("Client "+ws.id+" disconnected");
-    if(ws.id){
+    console.log("Client " + ws.id + " disconnected");
+    if (ws.id!==undefined) {
       //anounce other users that this user has left
       Object.values(lookup).forEach((value) => {
         value.ws.send(
@@ -179,11 +195,18 @@ wss.on("connection", (ws) => {
               id: ws.id,
             },
             message: "User has left",
-          }))
+          })
+        );
+      });
+      //if user join any room then leave that room
+      lookup[ws.id].roomJoined.forEach(roomId=>{
+        roomsChat[roomId].clients = roomsChat[roomId].clients.filter(id => {
+          return ws.id!=id
         });
-      }
-      nameSet.delete(lookup[ws.id]?.name);
-      delete lookup[ws.id];
-    });
+        if(roomsChat[roomId].clients.length==0) delete roomsChat[roomId];
+      })
+    }
+    nameSet.delete(lookup[ws.id]?.name);
+    delete lookup[ws.id];
   });
-  
+});

@@ -1,19 +1,19 @@
 import React from "react";
 import { TextField, Grid, Paper } from "@mui/material";
 
-  const BASIC_STYLE_UNREADANNOUNCE = {
-    position: "absolute",
-    top: "50%",
-    transform: " translate(0, -50%)",
-    right: "10px",
-    color: "white",
-    backgroundColor: "red",
-    borderRadius: "50%",
-    padding:"5px",
-    width: "fit-content",
-    height: "fit-content",
-    textAlign: "center",
-  }
+const BASIC_STYLE_UNREADANNOUNCE = {
+  position: "absolute",
+  top: "50%",
+  transform: " translate(0, -50%)",
+  right: "10px",
+  color: "white",
+  backgroundColor: "red",
+  borderRadius: "50%",
+  padding:"5px",
+  width: "fit-content",
+  height: "fit-content",
+  textAlign: "center",
+}
 export default function UsersBox(props) {
   const [searchText, setSearchText] = React.useState("");
   let users = [];
@@ -29,7 +29,7 @@ export default function UsersBox(props) {
         style={{
           position: "relative",
           padding: "10px",
-          backgroundColor: props.clientIdChoose === -1 ? "gray" : "initial",
+          backgroundColor: props.messageBoxChoose == "-1" ? "gray" : "initial",
         }}
       >
         Public chat
@@ -58,7 +58,7 @@ export default function UsersBox(props) {
               position: "relative",
               padding: "10px",
               backgroundColor:
-                props.clientIdChoose == user[0] ? "gray" : "initial",
+                props.messageBoxChoose === user[0] ? "gray" : "initial",
             }}
           >
             {user[1]}

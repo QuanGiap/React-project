@@ -32,10 +32,11 @@ export default function MainChat(props) {
     props.setTextes(newText);
   };
   const sendMessage = () => {
-    const typeMessage = (props.clientId !== -1) ? "SEND_PRIVATE" : "SEND_PUBLIC";
+    let typeMessage = (props.clientId != "-1") ? "SEND_PRIVATE" : "SEND_PUBLIC";
+    if(props.isSelectRoom) typeMessage = "ROOM_CHAT"
     const clientId = props.clientId;
     props.ws.send(
-      JSON.stringify({ type: typeMessage, text: text, userId: props.user.id,clientId:clientId })
+      JSON.stringify({ type: typeMessage, text: text, userId: props.user.id,clientId:clientId,roomId:clientId })
     );
   };
   return (
@@ -47,7 +48,8 @@ export default function MainChat(props) {
     >
       <Grid item>
         <Paper elevation={8}>
-          <div style={{textAlign:"center",fontSize:"30px"}}>You are chatting {props.clientId!==-1 ? props.clientName : "Public"}</div>
+          {!props.isSelectRoom && <div style={{textAlign:"center",fontSize:"30px"}}>You are chatting {props.clientId!==-1 ? props.clientName : "Public"}</div>}
+          {props.isSelectRoom && <div style={{textAlign:"center",fontSize:"20px"}}>This room id is {props.clientId}</div>}
           <div
             style={{
               height: DEFAULT_HEIGHT_CHAT,
