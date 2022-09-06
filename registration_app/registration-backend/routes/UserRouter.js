@@ -63,10 +63,10 @@ function checkPassSecure(password) {
       isNumber = true;
     }
   }
-  if (!isLower) return "Missing lower case character";
-  if (!isUpper) return "Missing upper case character";
-  if (!isSpecial) return "Missing special character";
-  if (!isNumber) return "Missing number character";
+  if (!isLower) return "Missing lower case character in password";
+  if (!isUpper) return "Missing upper case character in password";
+  if (!isSpecial) return "Missing special character in password";
+  if (!isNumber) return "Missing number character in password";
   return null;
 }
 
