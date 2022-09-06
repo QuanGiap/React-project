@@ -118,7 +118,7 @@ export default function RegistrationForm() {
           );
         })}
       </Stepper>
-      {activeStep === steps.length ? (
+      {activeStep === stepLayout.length ? (
         <React.Fragment>
           <Typography sx={{ mt: 2, mb: 1 }}>
             All steps completed - you&apos;re finished
@@ -131,7 +131,7 @@ export default function RegistrationForm() {
       ) : (
         <React.Fragment>
 
-          {stepLayout[0].layOut}
+          {stepLayout[activeStep].layOut}
 
           <Typography className="registration-text-error">
             {textError}
@@ -152,8 +152,8 @@ export default function RegistrationForm() {
               </Button>
             )}
 
-            <Button onClick={()=>handleNext(stepLayout[0].checkFunction)}>
-              {activeStep === steps.length - 1 ? "Finish" : "Next"}
+            <Button onClick={()=>handleNext(stepLayout[activeStep].checkFunction)}>
+              {activeStep === stepLayout.length - 1 ? "Finish" : "Next"}
             </Button>
           </Box>
         </React.Fragment>

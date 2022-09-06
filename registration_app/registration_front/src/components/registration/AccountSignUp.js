@@ -51,14 +51,16 @@ const checkValidAccount = (email, password, repassword, setErrorText) => {
   const isSpecial = SPECIAL_CHAR.test(password);
   let isNumber = false;
   for (let i = 0; i < password.length && !isUpper; i++) {
-    let character = password[i];
-    if (character == character.toUpperCase()) {
+    const character = password[i];
+    const charCode = character.charCodeAt(0);
+    if (charCode>=65 && charCode<=90) {
       isUpper = true;
     }
   }
   for (let i = 0; i < password.length && !isLower; i++) {
-    let character = password[i];
-    if (character == character.toLowerCase()) {
+    const character = password[i];
+    const charCode = character.charCodeAt(0);
+    if (charCode>=97 && charCode<=122) {
       isLower = true;
     }
   }
